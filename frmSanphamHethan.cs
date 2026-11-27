@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,7 +20,8 @@ namespace CuahangNongduoc
             IList<CuahangNongduoc.BusinessObject.MaSanPham> data = CuahangNongduoc.Controller.MaSanPhamController.LayMaSanPhamHetHan(dt.Value.Date);
             IList<Microsoft.Reporting.WinForms.ReportParameter> param = new List<Microsoft.Reporting.WinForms.ReportParameter>();
 
-            param.Add(new Microsoft.Reporting.WinForms.ReportParameter("ngay_tinh", dt.Value.Date.ToString("dd/MM/yyyy")));
+            // [REFACTOR #16 - Introduce Foreign Method] TRUOC: dt.Value.Date.ToString("dd/MM/yyyy")
+            param.Add(new Microsoft.Reporting.WinForms.ReportParameter("ngay_tinh", CuahangNongduoc.BusinessObject.ThoiGian.DinhDang(dt.Value.Date)));
             this.MaSanPhamBindingSource.DataSource = data;
             this.reportViewer.LocalReport.SetParameters(param);
             this.reportViewer.RefreshReport();

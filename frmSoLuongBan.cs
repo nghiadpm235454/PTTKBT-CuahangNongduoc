@@ -30,7 +30,7 @@ namespace CuahangNongduoc
         private void btnXemNgay_Click(object sender, EventArgs e)
         {
             IList<Microsoft.Reporting.WinForms.ReportParameter> param = new List<Microsoft.Reporting.WinForms.ReportParameter>();
-            param.Add(new Microsoft.Reporting.WinForms.ReportParameter("ngay", "Ngày " + dtNgay.Value.Date.ToString("dd/MM/yyyy")));
+            param.Add(new Microsoft.Reporting.WinForms.ReportParameter("ngay", "Ngày " + CuahangNongduoc.BusinessObject.ThoiGian.DinhDang(dtNgay.Value.Date)));
 
             this.reportViewer.LocalReport.SetParameters(param);
 
