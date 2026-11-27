@@ -69,24 +69,6 @@ namespace CuahangNongduoc.Controller
 
         }
 
-        // CN-05: danh sach lo con hang cua 1 san pham (dung cho tinh gia xuat).
-        // Luu y: phai goi tren MỘT doi tuong MaSanPhamController rieng (new), khong dung chung voi combobox.
-        public IList<MaSanPham> LayLoConHang(String idSanPham)
-        {
-            IList<MaSanPham> ds = new List<MaSanPham>();
-            DataTable tbl = factory.DanhsachLoConHang(idSanPham);
-            foreach (DataRow row in tbl.Rows)
-            {
-                MaSanPham lo = new MaSanPham();
-                lo.Id = Convert.ToString(row["ID"]);
-                lo.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
-                lo.GiaNhap = Convert.ToInt64(row["DON_GIA_NHAP"]);
-                lo.NgayNhap = row["NGAY_NHAP"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(row["NGAY_NHAP"]);
-                ds.Add(lo);
-            }
-            return ds;
-        }
-
         public static IList<MaSanPham> LayMaSanPhamHetHan(DateTime dt)
         {
             IList<MaSanPham> ds = new List<MaSanPham>();
@@ -113,7 +95,12 @@ namespace CuahangNongduoc.Controller
 
         public void HienThiAutoComboBox(String sp, ComboBox cmb)
         {
-            cmb.DataSource = factory.DanhsachMaSanPham(sp);
+            HienThiAutoComboBox(sp, cmb, false);
+        }
+
+        public void HienThiAutoComboBox(String sp, ComboBox cmb, bool chiConHan)
+        {
+            cmb.DataSource = factory.DanhsachMaSanPham(sp, chiConHan);
             cmb.DisplayMember = "ID";
             cmb.ValueMember = "ID";
         }
