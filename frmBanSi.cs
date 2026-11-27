@@ -10,7 +10,7 @@ using CuahangNongduoc.BusinessObject;
 
 namespace CuahangNongduoc
 {
-    public partial class frmBanSi: Form
+    public partial class frmBanSi : Form
     {
         SanPhamController ctrlSanPham = new SanPhamController();
         KhachHangController ctrlKhachHang = new KhachHangController();
@@ -25,7 +25,7 @@ namespace CuahangNongduoc
         public frmBanSi()
         {
             InitializeComponent();
-            
+
             status = Controll.AddNew;
         }
 
@@ -47,10 +47,10 @@ namespace CuahangNongduoc
 
             ctrlKhachHang.HienthiAutoComboBox(cmbKhachHang, true);
 
-            
-            ctrlPhieuBan.HienthiPhieuBan(bindingNavigator,cmbKhachHang, txtMaPhieu, dtNgayLapPhieu, numTongTien, numDaTra, numConNo);
+
+            ctrlPhieuBan.HienthiPhieuBan(bindingNavigator, cmbKhachHang, txtMaPhieu, dtNgayLapPhieu, numTongTien, numDaTra, numConNo);
             bindingNavigator.BindingSource.CurrentChanged += new EventHandler(BindingSource_CurrentChanged);
-            
+
             ctrlChiTiet.HienThiChiTiet(dgvDanhsachSP, txtMaPhieu.Text);
 
 
@@ -102,6 +102,7 @@ namespace CuahangNongduoc
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            bool thanhTienDung = numDonGia.Value * numSoLuong.Value == numThanhTien.Value;
 
             if (cmbMaSanPham.SelectedValue == null)
             {
@@ -111,7 +112,7 @@ namespace CuahangNongduoc
             {
                 MessageBox.Show("Vui lòng nhập Số lượng !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (numDonGia.Value * numSoLuong.Value != numThanhTien.Value)
+            else if (!thanhTienDung)
             {
                 MessageBox.Show("Thành tiền sai!", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -145,7 +146,7 @@ namespace CuahangNongduoc
             bindingNavigatorPositionItem.Focus();
             this.Luu();
             status = Controll.Normal;
-           
+
         }
         void Luu()
         {
@@ -224,7 +225,7 @@ namespace CuahangNongduoc
                 numTongTien.Value -= Convert.ToInt64(row["THANH_TIEN"]);
                 deleted.Add(new MaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]), Convert.ToInt32(row["SO_LUONG"])));
                 bs.RemoveCurrent();
-                
+
             }
         }
 
@@ -239,7 +240,7 @@ namespace CuahangNongduoc
                 BindingSource bs = ((BindingSource)dgvDanhsachSP.DataSource);
                 DataRowView row = (DataRowView)bs.Current;
                 numTongTien.Value -= Convert.ToInt64(row["THANH_TIEN"]);
-                deleted.Add(new MaSanPham(Convert.ToString( row["ID_MA_SAN_PHAM"]), Convert.ToInt32(row["SO_LUONG"])) );
+                deleted.Add(new MaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]), Convert.ToInt32(row["SO_LUONG"])));
             }
         }
 
@@ -300,22 +301,22 @@ namespace CuahangNongduoc
 
         private void toolXoa_Click(object sender, EventArgs e)
         {
-             DataRowView view =  (DataRowView)bindingNavigator.BindingSource.Current;
-             if (view != null)
-             {
+            DataRowView view = (DataRowView)bindingNavigator.BindingSource.Current;
+            if (view != null)
+            {
 
-                 if (MessageBox.Show("Bạn có chắc chắn xóa không?", "Phieu Ban Si", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                 {
-                     ChiTietPhieuBanController ctrl = new ChiTietPhieuBanController();
-                     IList<ChiTietPhieuBan> ds = ctrl.ChiTietPhieuBan(view["ID"].ToString());
-                     foreach (ChiTietPhieuBan ct in ds)
-                     {
-                         CuahangNongduoc.DataLayer.MaSanPhanFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
-                     }
-                     bindingNavigator.BindingSource.RemoveCurrent();
-                     ctrlPhieuBan.Save();
-                 }
-             }
+                if (MessageBox.Show("Bạn có chắc chắn xóa không?", "Phieu Ban Si", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    ChiTietPhieuBanController ctrl = new ChiTietPhieuBanController();
+                    IList<ChiTietPhieuBan> ds = ctrl.ChiTietPhieuBan(view["ID"].ToString());
+                    foreach (ChiTietPhieuBan ct in ds)
+                    {
+                        CuahangNongduoc.DataLayer.MaSanPhanFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
+                    }
+                    bindingNavigator.BindingSource.RemoveCurrent();
+                    ctrlPhieuBan.Save();
+                }
+            }
         }
 
         private void toolXemLai_Click(object sender, EventArgs e)
@@ -330,7 +331,7 @@ namespace CuahangNongduoc
             frmDaiLy DaiLy = new frmDaiLy();
             DaiLy.ShowDialog();
             ctrlKhachHang.HienthiAutoComboBox(cmbKhachHang, true);
-            
+
         }
 
         private void btnThemSanPham_Click(object sender, EventArgs e)
@@ -339,7 +340,7 @@ namespace CuahangNongduoc
             SanPham.ShowDialog();
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
         }
-        
 
-     }
+
+    }
 }
