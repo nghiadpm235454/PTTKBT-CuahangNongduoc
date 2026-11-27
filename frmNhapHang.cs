@@ -21,7 +21,8 @@ namespace CuahangNongduoc
 
 
         Controll status = Controll.Normal;
-
+        PhieuNhapCaretaker caretaker = new PhieuNhapCaretaker();
+        NhapHangMediator mediator;
         public frmNhapHang()
         {
             InitializeComponent();
@@ -43,7 +44,8 @@ namespace CuahangNongduoc
       
         private void frmNhapHang_Load(object sender, EventArgs e)
         {
-            
+            mediator = new NhapHangMediator(numGiaNhap, numSoLuong, numThanhTien, numTongTien, numDaTra, numConNo);
+
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
             ctrlSanPham.HienthiDataGridViewComboBoxColumn(colSanPham);
             ctrlNCC.HienthiAutoComboBox(cmbNhaCungCap);
@@ -58,19 +60,109 @@ namespace CuahangNongduoc
 
             if (status == Controll.AddNew)
             {
-                txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap).ToString();
-                Allow(true);
+                txtMaPhieu.Text = ThamSo.LayMaPhieuNhap().ToString();
+                BatCheDoNhap();
             }
             else
             {
-                Allow(false);
+                TatCheDoNhap();
             }
-
+            ThemNutNhap();
 
         }
 
-       
+        PhieuNhapMemento TaoMemento()
+        {
+            PhieuNhapMemento m = new PhieuNhapMemento();
+            m.MaPhieu = txtMaPhieu.Text;
+            m.IdNhaCungCap = cmbNhaCungCap.SelectedValue;
+            m.NgayNhap = dtNgayNhap.Value;
+            m.DaTra = numDaTra.Value;
+            foreach (DataGridViewRow r in dataGridView.Rows)
+            {
+                if (r.IsNewRow) continue;
+                DongNhapMemento d = new DongNhapMemento();
+                d.IdSanPham = Convert.ToString(r.Cells["colSanPham"].Value);
+                d.MaLo = Convert.ToString(r.Cells["colMaSanPham"].Value);
+                d.DonGiaNhap = Convert.ToDecimal(r.Cells["colDonGiaNhap"].Value);
+                d.SoLuong = Convert.ToDecimal(r.Cells["colSoLuong"].Value);
+                d.NgaySanXuat = Convert.ToDateTime(r.Cells["colNgaySanXuat"].Value);
+                d.NgayHetHan = Convert.ToDateTime(r.Cells["colNgayHetHan"].Value);
+                m.Dong.Add(d);
+            }
+            return m;
+        }
 
+        void PhucHoiMemento(PhieuNhapMemento m)
+        {
+            txtMaPhieu.Text = m.MaPhieu;
+            cmbNhaCungCap.SelectedValue = m.IdNhaCungCap;
+            dtNgayNhap.Value = m.NgayNhap;
+            numTongTien.Value = 0;
+            foreach (DongNhapMemento d in m.Dong)
+            {
+                DataRow row = ctrlMaSP.NewRow();
+                row["ID_SAN_PHAM"] = d.IdSanPham;
+                row["ID_PHIEU_NHAP"] = m.MaPhieu;
+                row["ID"] = d.MaLo;
+                row["DON_GIA_NHAP"] = d.DonGiaNhap;
+                row["SO_LUONG"] = d.SoLuong;
+                row["NGAY_NHAP"] = m.NgayNhap.Date;
+                row["NGAY_SAN_XUAT"] = d.NgaySanXuat.Date;
+                row["NGAY_HET_HAN"] = d.NgayHetHan.Date;
+                ctrlMaSP.Add(row);
+                numTongTien.Value += d.DonGiaNhap * d.SoLuong;
+            }
+            numDaTra.Value = m.DaTra;
+        }
+
+        void ThemNutNhap()
+        {
+            ToolStripButton btnLuuNhap = new ToolStripButton("Lưu nháp");
+            btnLuuNhap.Click += delegate
+            {
+                caretaker.Luu(TaoMemento());
+                MessageBox.Show("Đã lưu nháp!", "Phieu Nhap");
+            };
+
+            ToolStripButton btnKhoiPhuc = new ToolStripButton("Khôi phục nháp");
+            btnKhoiPhuc.Click += delegate
+            {
+                if (!caretaker.CoNhap) { MessageBox.Show("Chưa có bản nháp!", "Phieu Nhap"); return; }
+                if (status == Controll.Normal) return;
+                PhucHoiMemento(caretaker.Lay());
+            };
+
+            bindingNavigator.Items.Add(btnLuuNhap);
+            bindingNavigator.Items.Add(btnKhoiPhuc);
+        }
+        void CongTongTien()
+        {
+            numTongTien.Value += numGiaNhap.Value * numSoLuong.Value;
+        }
+        class DongNhapInfo
+        {
+            public string MaLo;
+            public object IdSanPham;
+            public decimal Gia;
+            public decimal SoLuong;
+            public DateTime NSX;
+            public DateTime HSD;
+        }
+
+        DataRow TaoDong(DongNhapInfo i)
+        {
+            DataRow row = ctrlMaSP.NewRow();
+            row["ID_SAN_PHAM"] = i.IdSanPham;
+            row["ID_PHIEU_NHAP"] = txtMaPhieu.Text;
+            row["ID"] = i.MaLo;
+            row["DON_GIA_NHAP"] = i.Gia;
+            row["SO_LUONG"] = i.SoLuong;
+            row["NGAY_NHAP"] = dtNgayNhap.Value.Date;
+            row["NGAY_SAN_XUAT"] = i.NSX.Date;
+            row["NGAY_HET_HAN"] = i.HSD.Date;
+            return row;
+        }
         private void btnAdd_Click(object sender, EventArgs e)
         {
             
@@ -107,18 +199,16 @@ namespace CuahangNongduoc
                 }
                 else
                 {
-                    numTongTien.Value += numThanhTien.Value;
-                    DataRow row = ctrlMaSP.NewRow();
-                    row["ID_SAN_PHAM"] = cmbSanPham.SelectedValue;
-                    row["ID_PHIEU_NHAP"] = txtMaPhieu.Text;
-                    row["ID"] = txtMaSo.Text;
-                    row["DON_GIA_NHAP"] = numGiaNhap.Value;
-                    row["SO_LUONG"] = numSoLuong.Value;
-                    row["NGAY_NHAP"] = dtNgaySanXuat.Value.Date;
-                    row["NGAY_SAN_XUAT"] = dtNgaySanXuat.Value.Date;
-                    row["NGAY_HET_HAN"] = dtNgayHetHan.Value.Date;
-                    ctrlMaSP.Add(row);
-                    
+                    CongTongTien();
+                    DongNhapInfo info = new DongNhapInfo();
+                    info.MaLo = txtMaSo.Text;
+                    info.IdSanPham = cmbSanPham.SelectedValue;
+                    info.Gia = numGiaNhap.Value;
+                    info.SoLuong = numSoLuong.Value;
+                    info.NSX = dtNgaySanXuat.Value;
+                    info.HSD = dtNgayHetHan.Value;
+                    ctrlMaSP.Add(TaoDong(info));
+
                 }
             }
             else
@@ -129,22 +219,17 @@ namespace CuahangNongduoc
 
       
 
-        private void numGiaNhap_ValueChanged(object sender, EventArgs e)
-        {
-            numThanhTien.Value = numGiaNhap.Value * numSoLuong.Value;
-        }
-
-   
+     
 
         private void toolLuuThoat_Click(object sender, EventArgs e)
         {
             bindingNavigatorPositionItem.Focus();
             this.Luu();
             status = Controll.Normal;
-            this.Allow(false);
+            this.TatCheDoNhap();
         }
 
-        void Luu()
+        private void Luu()
         {
             if (status == Controll.AddNew)
             {
@@ -156,14 +241,21 @@ namespace CuahangNongduoc
                 CapNhat();
             }
         }
-        void CapNhat()
+        private void CapNhat()
         {
             ctrlMaSP.Save();
 
             ctrl.Update();
         }
-        void ThemMoi()
+        private void ThemMoi()
         {
+            PhieuNhapController ctrlPN = new PhieuNhapController();
+            if (ctrlPN.LayPhieuNhap(txtMaPhieu.Text) != null)
+            {
+                MessageBox.Show("Mã Phiếu nhập này đã tồn tại !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             DataRow row = ctrl.NewRow();
             row["ID"] = txtMaPhieu.Text;
             row["NGAY_NHAP"] = dtNgayNhap.Value.Date;
@@ -173,20 +265,13 @@ namespace CuahangNongduoc
             row["CON_NO"] = numConNo.Value;
             ctrl.Add(row);
 
-            PhieuNhapController ctrlPN = new PhieuNhapController();
-
-            if (ctrlPN.LayPhieuNhap(txtMaPhieu.Text) != null)
-            {
-                MessageBox.Show("Mã Phiếu nhập này đã tồn tại !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             if (ThamSo.LaSoNguyen(txtMaPhieu.Text))
             {
                 long so = Convert.ToInt64(txtMaPhieu.Text);
-                if (so >= ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap))
+                if (so >= ThamSo.LayMaPhieuNhap())
                 {
-                    ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuNhap, so + 1);
+                    ThamSo.GanMaPhieuNhap(so + 1);
                 }
             }
 
@@ -210,12 +295,12 @@ namespace CuahangNongduoc
 
             status = Controll.AddNew;
 
-            txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap).ToString();
+            txtMaPhieu.Text = ThamSo.LayMaPhieuNhap().ToString();
             numTongTien.Value = 0;
             numDaTra.Value = 0;
             numConNo.Value = 0;
             ctrlMaSP.HienThiChiTietPhieuNhap(txtMaPhieu.Text, dataGridView);
-            this.Allow(true);
+            this.BatCheDoNhap();
         }
 
         private void toolSavePrint_Click(object sender, EventArgs e)
@@ -261,10 +346,18 @@ namespace CuahangNongduoc
 
         private void dataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            e.Cancel = true;
+            GridErrorHelper.Xuly(sender, e);
+        }
+        void BatCheDoNhap()
+        {
+            SetAllow(true);
         }
 
-        void Allow(bool val)
+        void TatCheDoNhap()
+        {
+            SetAllow(false);
+        }
+        void SetAllow(bool val)
         {
             txtMaPhieu.Enabled = val;
             cmbNhaCungCap.Enabled = val;
@@ -280,7 +373,7 @@ namespace CuahangNongduoc
         private void toolChinhsua_Click(object sender, EventArgs e)
         {
             status = Controll.Edit;
-            this.Allow(true);
+            this.BatCheDoNhap();
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -313,10 +406,7 @@ namespace CuahangNongduoc
             }
         }
 
-        private void numDaTra_ValueChanged(object sender, EventArgs e)
-        {
-            numConNo.Value = numTongTien.Value - numDaTra.Value;
-        }
+       
 
         private void button1_Click(object sender, EventArgs e)
         {

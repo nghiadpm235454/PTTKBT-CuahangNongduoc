@@ -21,12 +21,20 @@ namespace CuahangNongduoc
             txtTenCuaHang.Text = ch.TenCuaHang;
             txtDienThoai.Text = ch.DienThoai;
             txtDiaChi.Text = ch.DiaChi;
+
+            cmbXuatKho.SelectedIndex = (CauHinhKho.LayPpXuatKho() == "CHI_DINH") ? 1 : 0;
+            cmbGiaXuat.SelectedIndex = (CauHinhKho.LayPpGiaXuat() == "FIFO") ? 1 : 0;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            ThamSo.GanCuaHang(txtTenCuaHang.Text, txtDiaChi.Text, txtDienThoai.Text);
-
+            CuahangNongduoc.BusinessObject.CuaHang ch = new CuahangNongduoc.BusinessObject.CuaHang();
+            ch.TenCuaHang = txtTenCuaHang.Text;
+            ch.DiaChi = txtDiaChi.Text;
+            ch.DienThoai = txtDienThoai.Text;
+            ThamSo.GanCuaHang(ch);
+            CauHinhKho.GanPpXuatKho(cmbXuatKho.SelectedIndex == 1 ? "CHI_DINH" : "FIFO");
+            CauHinhKho.GanPpGiaXuat(cmbGiaXuat.SelectedIndex == 1 ? "FIFO" : "BQGQ");
             this.Close();
         }
     }
