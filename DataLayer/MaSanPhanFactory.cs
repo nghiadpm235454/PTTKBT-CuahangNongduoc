@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
-using System.Data.SqlClient;
+using System.Data.OleDb;
 
 namespace CuahangNongduoc.DataLayer
 {
@@ -12,31 +12,22 @@ namespace CuahangNongduoc.DataLayer
 
         public void LoadSchema()
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID = '-1'");
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM WHERE ID = '-1'");
             m_Ds.Load(cmd);
         }
 
         public DataTable DanhsachMaSanPham(String sp)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = sp;
-            m_Ds.Load(cmd);
-
-            return m_Ds;
-        }
-        // CN-05: cac lo con hang cua 1 san pham, lo nhap som nhat truoc.
-        public DataTable DanhsachLoConHang(String idSanPham)
-        {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0 ORDER BY NGAY_NHAP, ID");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = idSanPham;
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0");
+            cmd.Parameters.Add("id", OleDbType.VarChar, 50).Value = sp;
             m_Ds.Load(cmd);
 
             return m_Ds;
         }
         public DataTable DanhsachChiTiet(String sp)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_PHIEU_NHAP=@id");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = sp;
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_PHIEU_NHAP=@id");
+            cmd.Parameters.Add("id", OleDbType.VarChar, 50).Value = sp;
             m_Ds.Load(cmd);
 
             return m_Ds;
@@ -44,24 +35,24 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable LaySanPham(String idMaSanPham)
         {
-            SqlCommand cmd = new SqlCommand("SELECT SP.* FROM SAN_PHAM SP INNER JOIN MA_SAN_PHAM MSP ON SP.ID = MSP.ID_SAN_PHAM WHERE MSP.ID = @id");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = idMaSanPham;
+            OleDbCommand cmd = new OleDbCommand("SELECT SP.* FROM SAN_PHAM SP INNER JOIN MA_SAN_PHAM MSP ON SP.ID = MSP.ID_SAN_PHAM WHERE MSP.ID = @id");
+            cmd.Parameters.Add("id", OleDbType.VarChar,50).Value = idMaSanPham;
             m_Ds.Load(cmd);
             return m_Ds;
         }
 
         public DataTable LayMaSanPham(String idMaSanPham)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM MSP WHERE MSP.ID = @id");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = idMaSanPham;
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM MSP WHERE MSP.ID = @id");
+            cmd.Parameters.Add("id", OleDbType.VarChar,50).Value = idMaSanPham;
             m_Ds.Load(cmd);
             return m_Ds;
         }
 
         public DataTable DanhsachMaSanPhamHetHan(DateTime dt)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE SO_LUONG > 0 AND NGAY_HET_HAN <= @ngay");
-            cmd.Parameters.Add("@ngay", SqlDbType.Date).Value = dt;
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM WHERE SO_LUONG > 0 AND NGAY_HET_HAN <= @ngay");
+            cmd.Parameters.Add("ngay", OleDbType.Date).Value = dt;
             m_Ds.Load(cmd);
 
             return m_Ds;
@@ -69,7 +60,7 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable DanhsachMaSanPham()
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE SO_LUONG > 0");
+            OleDbCommand cmd = new OleDbCommand("SELECT * FROM MA_SAN_PHAM WHERE SO_LUONG > 0");
             m_Ds.Load(cmd);
 
             return m_Ds;
@@ -77,11 +68,9 @@ namespace CuahangNongduoc.DataLayer
 
         public static void CapNhatSoLuong(String masp, int so_luong)
         {
-            DataService ds = new DataService();
-            SqlCommand cmd = new SqlCommand("UPDATE MA_SAN_PHAM SET SO_LUONG = SO_LUONG + @so WHERE ID = @id");
-            cmd.Parameters.Add("@so", SqlDbType.Int).Value = so_luong;
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = masp;
-            ds.ExecuteNoneQuery(cmd);
+            // TRUOC: UPDATE MA_SAN_PHAM bang OleDb, khong dung SAN_PHAM, cho phep ton am
+            // SAU:   dung LoHangDao: cap nhat ca MA_SAN_PHAM + SAN_PHAM, chan ton am
+            LoHangDao.CapNhatTon(masp, so_luong);
         }
 
         public DataRow NewRow()

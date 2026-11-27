@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,8 +9,11 @@ namespace CuahangNongduoc.BusinessObject
         public SanPham() { }
         public SanPham(String id, String tensp)
         {
-            m_Id = id;
-            m_TenSP = tensp;
+            // [REFACTOR #17 - Self Encapsulate Field]
+            // TRUOC: m_Id = id;  m_TenSP = tensp;
+            // SAU:   Id = id;  TenSanPham = tensp;
+            Id = id;
+            TenSanPham = tensp;
         }
         private String m_Id;
 
