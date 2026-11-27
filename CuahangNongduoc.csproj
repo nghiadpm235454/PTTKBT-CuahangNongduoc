@@ -444,6 +444,7 @@
     <EmbeddedResource Include="Report\rptSoLuongBan.rdlc" />
     <EmbeddedResource Include="Report\rptSoLuongTon.rdlc" />
     <EmbeddedResource Include="Report\rptThanhToan.rdlc" />
+    <EmbeddedResource Include="Report\rptThongKe.rdlc" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
@@ -467,6 +468,39 @@
     <Compile Include="Strategy\GiaXuatBQGQ.cs" />
     <Compile Include="Strategy\GiaXuatFIFO.cs" />
     <Compile Include="Strategy\KhoStrategyFactory.cs" />
+    <Compile Include="BusinessObject\HanSuDung.cs" />
+    <Compile Include="BusinessObject\LoIterator.cs" />
+    <Compile Include="BusinessObject\ThoiGian.cs" />
+    <Compile Include="BusinessObject\TonKhoObserver.cs" />
+    <Compile Include="BusinessObject\XuatKhoModels.cs" />
+    <Compile Include="Controller\XuatKhoController.cs" />
+    <Compile Include="Controller\XuatKhoService.cs" />
+    <Compile Include="DataLayer\LoHangDao.cs" />
+    <Compile Include="Test\XuatKhoServiceTest.cs" />
+    <Compile Include="CauHinhKho.cs" />
+    <Compile Include="GridErrorHelper.cs" />
+    <Compile Include="NhapHangMediator.cs" />
+    <Compile Include="PhieuNhapMemento.cs" />
+    <Compile Include="BaoCao\BasePhieuInForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BaoCao\BaseReportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BaoCao\IReportOutput.cs" />
+    <Compile Include="BaoCao\LoaiThongKe.cs" />
+    <Compile Include="BaoCao\ThongKeReportBuilder.cs" />
+    <Compile Include="BusinessObject\ThongKeRow.cs" />
+    <Compile Include="DataLayer\BaoCaoFactory.cs" />
+    <Compile Include="frmBaoCaoNhanVien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBaoCaoThongKe.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.BaoCao.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\save.png" />
