@@ -33,6 +33,32 @@ namespace CuahangNongduoc.Controller
         {
             factory.Save();
         }
+        // TRUOC: public void Save() { factory.Save(); }   (loi bi nuot)
+        // SAU:   tra ket qua + thong bao loi de form hien thi
+        public bool Save(out string loi)
+        {
+            loi = null;
+            try
+            {
+                factory.Save();
+                return true;
+            }
+            catch (TonKhoKhongDuException ex)
+            {
+                loi = ex.Message;
+                return false;
+            }
+        }
+
+        public IDictionary<string, int> LayDaGiu()
+        {
+            return factory.LayDaGiu();
+        }
+
+        public DataRow TimDongTheoLo(string idLo)
+        {
+            return factory.TimDongTheoLo(idLo);
+        }
 
 
         public IList<ChiTietPhieuBan> ChiTietPhieuBan(String idPhieuBan)

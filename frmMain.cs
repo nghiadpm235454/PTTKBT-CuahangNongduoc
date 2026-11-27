@@ -14,6 +14,7 @@ namespace CuahangNongduoc
         public frmMain()
         {
             InitializeComponent();
+            ThemMenuBaoCaoP10();
         }
         frmDonViTinh DonViTinh = null;
 

@@ -113,7 +113,12 @@ namespace CuahangNongduoc.Controller
 
         public void HienThiAutoComboBox(String sp, ComboBox cmb)
         {
-            cmb.DataSource = factory.DanhsachMaSanPham(sp);
+            HienThiAutoComboBox(sp, cmb, false);
+        }
+
+        public void HienThiAutoComboBox(String sp, ComboBox cmb, bool chiConHan)
+        {
+            cmb.DataSource = factory.DanhsachMaSanPham(sp, chiConHan);
             cmb.DisplayMember = "ID";
             cmb.ValueMember = "ID";
         }

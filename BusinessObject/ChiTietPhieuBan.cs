@@ -49,5 +49,10 @@ namespace CuahangNongduoc.BusinessObject
             set { m_GiaXuat = value; }
         }
 
+        // [REFACTOR #14 - Hide Delegate] hoa don/bao cao goi ct.SoLo thay vi ct.MaSanPham.Id
+        public String SoLo { get { return MaSanPham.Id; } }
+        public DateTime NgayHetHan { get { return MaSanPham.NgayHetHan; } }
+        public String TenSanPham { get { return MaSanPham.TenSanPham; } }
+
     }
 }

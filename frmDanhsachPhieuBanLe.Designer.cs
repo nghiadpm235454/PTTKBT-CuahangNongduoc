@@ -181,8 +181,7 @@
             this.toolXemLai.Size = new System.Drawing.Size(50, 43);
             this.toolXemLai.Text = "Xem lại";
             this.toolXemLai.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
-            this.toolXemLai.Click += new System.EventHandler(this.frmDanhsachPhieuNhap_Load);
-            // 
+            this.toolXemLai.Click += new System.EventHandler(this.frmDanhsachPhieuBan_Load);            // 
             // bindingNavigatorDeleteItem
             // 
             this.bindingNavigatorDeleteItem.Image = global::CuahangNongduoc.Properties.Resources.remove;
@@ -311,7 +310,7 @@
             this.Name = "frmDanhsachPhieuBanLe";
             this.Text = "DANH SACH PHIEU BAN LE";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.frmDanhsachPhieuNhap_Load);
+            this.Load += new System.EventHandler(this.frmDanhsachPhieuBan_Load);
             ((System.ComponentModel.ISupportInitialize)(this.bindingNavigator)).EndInit();
             this.bindingNavigator.ResumeLayout(false);
             this.bindingNavigator.PerformLayout();

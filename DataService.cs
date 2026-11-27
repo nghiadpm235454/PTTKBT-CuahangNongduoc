@@ -27,6 +27,11 @@ namespace CuahangNongduoc
 
         public DataService() { }
 
+        public DataTable Table
+        {
+            get { return this; }
+        }
+
         public SqlCommand Command
         {
             get { return m_Command; }
