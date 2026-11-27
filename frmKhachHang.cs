@@ -30,8 +30,8 @@ namespace CuahangNongduoc
 
         private void bindingNavigatorAddNewItem_Click(object sender, EventArgs e)
         {
-            long maso = ThamSo.KhachHang;
-            ThamSo.KhachHang = maso + 1;
+            long maso = ThamSoManager.Instance.GetThamSo(KhoaThamSo.KhachHang);
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.KhachHang, maso + 1);
 
             DataRowView row = (DataRowView)bindingNavigator.BindingSource.AddNew();
             row["ID"] = maso;

@@ -45,6 +45,7 @@ namespace CuahangNongduoc.Controller
                 MaSanPhamController ctrl = new MaSanPhamController();
                 ChiTietPhieuBan ct = new ChiTietPhieuBan();
                 ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
+                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
                 ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
                 ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
                 ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
@@ -64,6 +65,7 @@ namespace CuahangNongduoc.Controller
                 MaSanPhamController ctrl = new MaSanPhamController();
                 ChiTietPhieuBan ct = new ChiTietPhieuBan();
                 ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
+                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
                 ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
                 ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
                 ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
@@ -82,6 +84,7 @@ namespace CuahangNongduoc.Controller
                 MaSanPhamController ctrl = new MaSanPhamController();
                 ChiTietPhieuBan ct = new ChiTietPhieuBan();
                 ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
+                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
                 ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
                 ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
                 ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));

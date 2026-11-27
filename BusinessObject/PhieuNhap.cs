@@ -58,12 +58,23 @@ namespace CuahangNongduoc.BusinessObject
 
 	
 
-        private IList<MaSanPham> m_ChiTiet;
+        // RF-02 #24 - Truoc: public IList<MaSanPham> ChiTiet { get; set; }
+        private readonly List<MaSanPham> m_ChiTiet = new List<MaSanPham>();
 
-        public IList<MaSanPham> ChiTiet
+        public IEnumerable<MaSanPham> ChiTiet
         {
-            get { return m_ChiTiet; }
-            set { m_ChiTiet = value; }
+            get { return m_ChiTiet.AsReadOnly(); }
+        }
+
+        public void ThemChiTiet(MaSanPham sp)
+        {
+            m_ChiTiet.Add(sp);
+        }
+
+        public void DatChiTiet(IEnumerable<MaSanPham> ds)
+        {
+            m_ChiTiet.Clear();
+            m_ChiTiet.AddRange(ds);
         }
 
 	

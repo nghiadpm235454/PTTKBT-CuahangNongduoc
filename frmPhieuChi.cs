@@ -27,8 +27,8 @@ namespace CuahangNongduoc
 
         private void toolAdd_Click(object sender, EventArgs e)
         {
-            long maphieu = ThamSo.PhieuChi;
-            ThamSo.PhieuChi=maphieu+1;
+            long maphieu = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuChi);
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuChi, maphieu+1);
 
             DataRow row = ctrl.NewRow();
             row["ID"] = maphieu;

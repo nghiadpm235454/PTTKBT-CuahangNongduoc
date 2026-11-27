@@ -51,12 +51,23 @@ namespace CuahangNongduoc.BusinessObject
             set { m_ConNo = value; }
         }
 
-        private IList<ChiTietPhieuBan> m_ChiTiet;
+        // RF-02 #24 - Truoc: public IList<ChiTietPhieuBan> ChiTiet { get; set; }
+        private readonly List<ChiTietPhieuBan> m_ChiTiet = new List<ChiTietPhieuBan>();
 
-        public IList<ChiTietPhieuBan> ChiTiet
+        public IEnumerable<ChiTietPhieuBan> ChiTiet
         {
-            get { return m_ChiTiet; }
-            set { m_ChiTiet = value; }
+            get { return m_ChiTiet.AsReadOnly(); }
+        }
+
+        public void ThemChiTiet(ChiTietPhieuBan ct)
+        {
+            m_ChiTiet.Add(ct);
+        }
+
+        public void DatChiTiet(IEnumerable<ChiTietPhieuBan> ds)
+        {
+            m_ChiTiet.Clear();
+            m_ChiTiet.AddRange(ds);
         }
 
 	
