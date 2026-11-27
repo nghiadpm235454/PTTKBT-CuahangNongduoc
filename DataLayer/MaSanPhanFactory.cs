@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
+using System.Data.OleDb;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace CuahangNongduoc.DataLayer
 {
@@ -18,17 +19,20 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable DanhsachMaSanPham(String sp)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = sp;
-            m_Ds.Load(cmd);
-
-            return m_Ds;
+            return DanhsachMaSanPham(sp, false);
         }
-        // CN-05: cac lo con hang cua 1 san pham, lo nhap som nhat truoc.
-        public DataTable DanhsachLoConHang(String idSanPham)
+
+        public DataTable DanhsachMaSanPham(String sp, bool chiConHan)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0 ORDER BY NGAY_NHAP, ID");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = idSanPham;
+            String sql = "SELECT * FROM MA_SAN_PHAM WHERE ID_SAN_PHAM=@id AND SO_LUONG > 0";
+            if (chiConHan)
+                sql += " AND NGAY_HET_HAN >= @ngay";
+            sql += " ORDER BY NGAY_HET_HAN ASC";
+
+            SqlCommand cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@id", SqlDbType.VarChar, 50).Value = sp;
+            if (chiConHan)
+                cmd.Parameters.Add("@ngay", SqlDbType.DateTime).Value = DateTime.Today;
             m_Ds.Load(cmd);
 
             return m_Ds;
