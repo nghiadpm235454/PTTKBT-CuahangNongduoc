@@ -7,7 +7,6 @@ using System.Text;
 using System.Windows.Forms;
 using CuahangNongduoc.Controller;
 using CuahangNongduoc.BusinessObject;
-using CuahangNongduoc.Strategy;
 
 namespace CuahangNongduoc
 {
@@ -35,7 +34,7 @@ namespace CuahangNongduoc
             status = Controll.Normal;
         }
 
-        private void frmNhapHang_Load(object sender, EventArgs e)
+        private void frmBanLe_Load(object sender, EventArgs e)
         {
 
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
@@ -55,7 +54,7 @@ namespace CuahangNongduoc
 
             if (status == Controll.AddNew)
             {
-                txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan).ToString();
+                txtMaPhieu.Text = ThamSo.LayMaPhieuBan().ToString();
             }
             else
             {
@@ -81,7 +80,7 @@ namespace CuahangNongduoc
                 MaSanPhamController ctrlMSP = new MaSanPhamController();
 
                 cmbMaSanPham.SelectedIndexChanged -= new EventHandler(cmbMaSanPham_SelectedIndexChanged);
-                ctrlMSP.HienThiAutoComboBox(cmbSanPham.SelectedValue.ToString(), cmbMaSanPham);
+                ctrlMSP.HienThiAutoComboBox(cmbSanPham.SelectedValue.ToString(), cmbMaSanPham, true);
                 cmbMaSanPham.SelectedIndexChanged += new EventHandler(cmbMaSanPham_SelectedIndexChanged);
             }
         }
@@ -122,9 +121,6 @@ namespace CuahangNongduoc
                 row["DON_GIA"] = numDonGia.Value;
                 row["SO_LUONG"] = numSoLuong.Value;
                 row["THANH_TIEN"] = numThanhTien.Value;
-                // CN-05: tinh gia xuat theo cau hinh cua hang (Strategy)
-                IList<MaSanPham> cacLo = new MaSanPhamController().LayLoConHang(Convert.ToString(cmbSanPham.SelectedValue));
-                row["GIA_XUAT"] = KhoStrategyFactory.TuCauHinh().TaoGiaXuat().TinhGiaXuat(cacLo);
                 ctrlChiTiet.Add(row);
 
             }
@@ -196,9 +192,9 @@ namespace CuahangNongduoc
             if (ThamSo.LaSoNguyen(txtMaPhieu.Text))
             {
                 long so = Convert.ToInt64(txtMaPhieu.Text);
-                if (so >= ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan))
+                if (so >= ThamSo.LayMaPhieuBan())
                 {
-                    ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuBan, so + 1);
+                    ThamSo.GanMaPhieuBan(so + 1);
                 }
             }
 
@@ -212,7 +208,7 @@ namespace CuahangNongduoc
         {
             ctrlPhieuBan = new PhieuBanController();
             status = Controll.AddNew;
-            txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan).ToString();
+            txtMaPhieu.Text = ThamSo.LayMaPhieuBan().ToString();
             numTongTien.Value = 0;
             ctrlChiTiet.HienThiChiTiet(dgvDanhsachSP, txtMaPhieu.Text);
             this.Allow(true);
@@ -340,6 +336,9 @@ namespace CuahangNongduoc
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
         }
 
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
 
-     }
+        }
+    }
 }
