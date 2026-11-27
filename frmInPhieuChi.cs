@@ -21,7 +21,7 @@ namespace CuahangNongduoc
         {
             Num2Str num = new Num2Str();
             IList<Microsoft.Reporting.WinForms.ReportParameter> param = new List<Microsoft.Reporting.WinForms.ReportParameter>();
-            CuahangNongduoc.BusinessObject.CuaHang ch = ThamSo.LayCuaHang();
+            CuahangNongduoc.BusinessObject.CuaHang ch = ThamSoManager.Instance.LayCuaHang();
             param.Add(new Microsoft.Reporting.WinForms.ReportParameter("ten_cua_hang", ch.TenCuaHang));
             param.Add(new Microsoft.Reporting.WinForms.ReportParameter("dia_chi", ch.DiaChi));
             param.Add(new Microsoft.Reporting.WinForms.ReportParameter("dien_thoai", ch.DienThoai));

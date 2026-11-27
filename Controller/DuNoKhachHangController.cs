@@ -16,8 +16,9 @@ namespace CuahangNongduoc.Controller
             ToolStripProgressBar bar, DataGridView dg, BindingNavigator bn)
         {
 
-            int ThangTruoc=0, NamTruoc=0;
-            ThamSo.PreMonth(ref ThangTruoc, ref NamTruoc, thang, nam);
+            // RF-02 #21/#20 - Truoc: ThamSo.PreMonth(ref ThangTruoc, ref NamTruoc, thang, nam)
+            KyThang kyTruoc = new KyThang(thang, nam).ThangTruoc();
+            int ThangTruoc = kyTruoc.Thang, NamTruoc = kyTruoc.Nam;
             factory.Clear(thang, nam);
 
 

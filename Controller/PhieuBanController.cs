@@ -11,6 +11,9 @@ namespace CuahangNongduoc.Controller
     
     public class PhieuBanController
     {
+        // RF-02 #22 - Truoc: so 50 lap lai trong Save(). Sau: hang so co ten.
+        private const int SO_PHIEU_DUNG_THU = 50;
+
         PhieuBanFactory factory = new PhieuBanFactory();
 
         BindingSource bs = new BindingSource();
@@ -36,14 +39,14 @@ namespace CuahangNongduoc.Controller
         public void Save()
         {
             int n = PhieuBanFactory.LaySoPhieu();
-            if (n >= 50)
+            if (n >= SO_PHIEU_DUNG_THU)
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được 50 phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được " + SO_PHIEU_DUNG_THU + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
             else
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(50-n) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(SO_PHIEU_DUNG_THU - n) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 factory.Save();
             }
             
@@ -107,7 +110,7 @@ namespace CuahangNongduoc.Controller
                 KhachHangController ctrlKH = new KhachHangController();
                 ph.KhachHang = ctrlKH.LayKhachHang(Convert.ToString(tbl.Rows[0]["ID_KHACH_HANG"]));
                 ChiTietPhieuBanController ctrl = new ChiTietPhieuBanController();
-                ph.ChiTiet = ctrl.ChiTietPhieuBan(ph.Id);
+                ph.DatChiTiet(ctrl.ChiTietPhieuBan(ph.Id));
             }
             return ph;
         }

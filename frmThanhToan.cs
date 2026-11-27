@@ -33,8 +33,8 @@ namespace CuahangNongduoc
 
         private void toolAdd_Click(object sender, EventArgs e)
         {
-            long maphieu = ThamSo.LayMaPhieuThanhToan();;
-            ThamSo.GanMaPhieuThanhToan(maphieu+1);
+            long maphieu = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuThanhToan);;
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuThanhToan, maphieu+1);
 
             DataRow row = ctrl.NewRow();
             row["ID"] = maphieu;

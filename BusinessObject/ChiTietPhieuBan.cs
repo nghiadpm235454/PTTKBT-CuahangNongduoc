@@ -41,6 +41,13 @@ namespace CuahangNongduoc.BusinessObject
             get { return m_ThanhTien; }
             set { m_ThanhTien = value; }
         }
+        private long m_GiaXuat;
+
+        public long GiaXuat
+        {
+            get { return m_GiaXuat; }
+            set { m_GiaXuat = value; }
+        }
 
     }
 }

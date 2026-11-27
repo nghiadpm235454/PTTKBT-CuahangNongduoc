@@ -4,6 +4,9 @@ using System.Text;
 
 namespace CuahangNongduoc.BusinessObject
 {
+    public enum PhuongPhapXuatKho { FIFO, ChiDinh }
+    public enum PhuongPhapGiaXuat { BQGQ, FIFO }
+
     public class CuaHang
     {
         private String m_TenCuaHang;
@@ -28,6 +31,22 @@ namespace CuahangNongduoc.BusinessObject
         {
             get { return m_DienThoai; }
             set { m_DienThoai = value; }
+        }
+
+        private PhuongPhapXuatKho m_PhuongPhapXuatKho = PhuongPhapXuatKho.FIFO;
+
+        public PhuongPhapXuatKho PhuongPhapXuatKho
+        {
+            get { return m_PhuongPhapXuatKho; }
+            set { m_PhuongPhapXuatKho = value; }
+        }
+
+        private PhuongPhapGiaXuat m_PhuongPhapGiaXuat = PhuongPhapGiaXuat.BQGQ;
+
+        public PhuongPhapGiaXuat PhuongPhapGiaXuat
+        {
+            get { return m_PhuongPhapGiaXuat; }
+            set { m_PhuongPhapGiaXuat = value; }
         }
 
     }

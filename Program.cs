@@ -14,6 +14,14 @@ namespace CuahangNongduoc
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            if (!DataService.OpenConnection()) return;
+
+            using (frmDangNhap f = new frmDangNhap())
+            {
+                if (f.ShowDialog() != DialogResult.OK) return;
+            }
+
             Application.Run(new frmMain());
         }
     }

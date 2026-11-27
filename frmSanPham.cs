@@ -37,8 +37,8 @@ namespace CuahangNongduoc
         private void bindingNavigatorAddNewItem_Click(object sender, EventArgs e)
         {
             DataRow row = ctrl.NewRow();
-            long maso = ThamSo.SanPham;
-            ThamSo.SanPham = maso+1;
+            long maso = ThamSoManager.Instance.GetThamSo(KhoaThamSo.SanPham);
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.SanPham, maso+1);
             row["ID"] = maso;
             row["TEN_SAN_PHAM"] = "";
             row["SO_LUONG"] = 0;

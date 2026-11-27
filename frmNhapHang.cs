@@ -58,7 +58,7 @@ namespace CuahangNongduoc
 
             if (status == Controll.AddNew)
             {
-                txtMaPhieu.Text = ThamSo.LayMaPhieuNhap().ToString();
+                txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap).ToString();
                 Allow(true);
             }
             else
@@ -184,9 +184,9 @@ namespace CuahangNongduoc
             if (ThamSo.LaSoNguyen(txtMaPhieu.Text))
             {
                 long so = Convert.ToInt64(txtMaPhieu.Text);
-                if (so >= ThamSo.LayMaPhieuNhap())
+                if (so >= ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap))
                 {
-                    ThamSo.GanMaPhieuNhap(so + 1);
+                    ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuNhap, so + 1);
                 }
             }
 
@@ -210,7 +210,7 @@ namespace CuahangNongduoc
 
             status = Controll.AddNew;
 
-            txtMaPhieu.Text = ThamSo.LayMaPhieuNhap().ToString();
+            txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap).ToString();
             numTongTien.Value = 0;
             numDaTra.Value = 0;
             numConNo.Value = 0;
