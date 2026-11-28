@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
@@ -10,6 +10,8 @@ namespace CuahangNongduoc.DataLayer
     {
         DataService m_Ds = new DataService();
 
+        // [FIX build] LoadSchema() bị xóa nhầm ở FIX-02 (R19) nhưng ChiTietPhieuNhapController.ThemChiTietPhieuNhap
+        // vẫn gọi để lấy schema trước khi NewRow() -> lỗi CS1061. Khôi phục lại vì CÓ nơi dùng.
         public void LoadSchema()
         {
             SqlCommand cmd = new SqlCommand("SELECT * FROM CHI_TIET_PHIEU_NHAP WHERE ID_PHIEU_NHAP = '-1'");

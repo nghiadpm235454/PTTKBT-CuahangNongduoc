@@ -17,5 +17,6 @@ namespace CuahangNongduoc.DataLayer
             m_Ds.Load(cmd);
             return m_Ds;
         }
+
     }
 }

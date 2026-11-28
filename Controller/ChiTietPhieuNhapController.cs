@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using CuahangNongduoc.DataLayer;
@@ -43,14 +43,14 @@ namespace CuahangNongduoc.Controller
                 ct.PhieuNhap = ctrlPN.LayPhieuNhap(Convert.ToString((row["ID_PHIEU_NHAP"])));
 
                 ListViewItem item = new ListViewItem(Convert.ToString(lvw.Items.Count + 1));
-                item.SubItems.Add(ct.MaSanPham.TenSanPham);   // [#14 Hide Delegate] TRUOC: ct.MaSanPham.SanPham.TenSanPham
+                item.SubItems.Add(ct.MaSanPham.SanPham.TenSanPham);
                 item.SubItems.Add(ct.MaSanPham.Id);
                 item.SubItems.Add(ct.MaSanPham.GiaNhap.ToString("#,###0"));
                 item.SubItems.Add(ct.MaSanPham.SoLuong.ToString("#,###0"));
-                long thanhtien = (ct.MaSanPham.SoLuong + ct.MaSanPham.GiaNhap);
+                long thanhtien = ct.MaSanPham.SoLuong * ct.MaSanPham.GiaNhap;
                 item.SubItems.Add(thanhtien.ToString("#,###0"));
-                item.SubItems.Add(ThoiGian.DinhDang(ct.MaSanPham.NgaySanXuat));   // [#16 Foreign Method] TRUOC: .ToString("dd/MM/yyyy")
-                item.SubItems.Add(ThoiGian.DinhDang(ct.MaSanPham.NgayHetHan));   // [#16 Foreign Method] TRUOC: .ToString("dd/MM/yyyy")
+                item.SubItems.Add(ct.MaSanPham.NgaySanXuat.ToString("dd/MM/yyyy"));
+                item.SubItems.Add(ct.MaSanPham.NgayHetHan.ToString("dd/MM/yyyy"));
                 
                 item.Tag = ct;
                 lvw.Items.Add(item);

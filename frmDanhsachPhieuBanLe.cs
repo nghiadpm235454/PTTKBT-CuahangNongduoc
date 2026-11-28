@@ -19,7 +19,7 @@ namespace CuahangNongduoc
 
         PhieuBanController ctrl = new PhieuBanController();
         KhachHangController ctrlKH = new KhachHangController();
-        private void frmDanhsachPhieuBan_Load(object sender, EventArgs e)
+        private void frmDanhsachPhieuNhap_Load(object sender, EventArgs e)
         {
             ctrlKH.HienthiKhachHangDataGridviewComboBox(colKhachhang);
             ctrl.HienthiPhieuBanLe(bindingNavigator, dataGridView);
@@ -60,7 +60,7 @@ namespace CuahangNongduoc
                 IList<ChiTietPhieuBan> ds = ctrl.ChiTietPhieuBan(view["ID"].ToString());
                 foreach (ChiTietPhieuBan ct in ds)
                 {
-                    CuahangNongduoc.DataLayer.MaSanPhanFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
+                    CuahangNongduoc.DataLayer.MaSanPhamFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
                 }
                 ctrl.Save();
             }
@@ -78,7 +78,7 @@ namespace CuahangNongduoc
                      IList<ChiTietPhieuBan> ds = ctrl.ChiTietPhieuBan(view["ID"].ToString());
                      foreach (ChiTietPhieuBan ct in ds)
                      {
-                         CuahangNongduoc.DataLayer.MaSanPhanFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
+                         CuahangNongduoc.DataLayer.MaSanPhamFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
                      }
                      bindingNavigator.BindingSource.RemoveCurrent();
                      ctrl.Save();
