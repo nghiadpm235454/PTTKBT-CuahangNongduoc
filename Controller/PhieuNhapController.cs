@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using CuahangNongduoc.DataLayer;
@@ -9,14 +9,13 @@ using System.Data;
 namespace CuahangNongduoc.Controller
 {
     
-    public class PhieuNhapController
+    public class PhieuNhapController : BaseController
     {
         PhieuNhapFactory factory = new PhieuNhapFactory();
-        BindingSource bs = new BindingSource();
 
-        public PhieuNhapController()
+        protected override DataTable LayDuLieuRong()
         {
-            bs.DataSource = factory.LayPhieuNhap("-1");
+            return factory.LayPhieuNhap("-1");
         }
 
         public DataRow NewRow()
@@ -55,7 +54,7 @@ namespace CuahangNongduoc.Controller
                 ph.ConNo = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
                 ph.NhaCungCap = ctrlNCC.LayNCC(Convert.ToString(tbl.Rows[0]["ID_NHA_CUNG_CAP"]));
                 MaSanPhamController ctrl = new MaSanPhamController();
-                ph.DatChiTiet(ctrl.ChiTietPhieuNhap(ph.Id));
+                ph.ChiTiet = ctrl.ChiTietPhieuNhap(ph.Id);
             }
             return ph;
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,10 +7,15 @@ namespace CuahangNongduoc.BusinessObject
     public class MaSanPham
     {
         public MaSanPham() { }
-        public MaSanPham(String id, int so_luong) 
+        private MaSanPham(String id, int so_luong) 
         {
             m_Id = id;
             m_SoLuong = so_luong;
+        }
+
+        public static MaSanPham ChoHoanKho(String idMaSanPham, int soLuong)
+        {
+            return new MaSanPham(idMaSanPham, soLuong);
         }
 
         private String m_Id;

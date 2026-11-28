@@ -1,11 +1,17 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CuahangNongduoc.BusinessObject
 {
-    public class PhieuThanhToan
+    public class PhieuThanhToan : IChungTu
     {
+        // P09 - Visitor: tính tổng thống kê trên nhiều loại chứng từ
+        public void Accept(IChungTuVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
         public PhieuThanhToan() { }
         public PhieuThanhToan(String id)
         {

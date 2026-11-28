@@ -1,11 +1,17 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CuahangNongduoc.BusinessObject
 {
-    public class PhieuNhap
+    public class PhieuNhap : IChungTu
     {
+        // P09 - Visitor: tính tổng thống kê trên nhiều loại chứng từ
+        public void Accept(IChungTuVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
         public PhieuNhap() { }
         public PhieuNhap(String id)
         {
@@ -58,23 +64,12 @@ namespace CuahangNongduoc.BusinessObject
 
 	
 
-        // RF-02 #24 - Truoc: public IList<MaSanPham> ChiTiet { get; set; }
-        private readonly List<MaSanPham> m_ChiTiet = new List<MaSanPham>();
+        private IList<MaSanPham> m_ChiTiet;
 
-        public IEnumerable<MaSanPham> ChiTiet
+        public IList<MaSanPham> ChiTiet
         {
-            get { return m_ChiTiet.AsReadOnly(); }
-        }
-
-        public void ThemChiTiet(MaSanPham sp)
-        {
-            m_ChiTiet.Add(sp);
-        }
-
-        public void DatChiTiet(IEnumerable<MaSanPham> ds)
-        {
-            m_ChiTiet.Clear();
-            m_ChiTiet.AddRange(ds);
+            get { return m_ChiTiet; }
+            set { m_ChiTiet = value; }
         }
 
 	

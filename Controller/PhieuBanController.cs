@@ -9,19 +9,15 @@ using System.Data;
 namespace CuahangNongduoc.Controller
 {
     
-    public class PhieuBanController
+    public class PhieuBanController : BaseController
     {
-        // RF-02 #22 - Truoc: so 50 lap lai trong Save(). Sau: hang so co ten.
-        private const int SO_PHIEU_DUNG_THU = 50;
-
         PhieuBanFactory factory = new PhieuBanFactory();
 
-        BindingSource bs = new BindingSource();
 
 
-        public PhieuBanController()
+        protected override DataTable LayDuLieuRong()
         {
-            bs.DataSource = factory.LayPhieuBan("-1");
+            return factory.LayPhieuBan("-1");
         }
         public DataRow NewRow()
         {
@@ -39,14 +35,14 @@ namespace CuahangNongduoc.Controller
         public void Save()
         {
             int n = PhieuBanFactory.LaySoPhieu();
-            if (n >= SO_PHIEU_DUNG_THU)
+            if (n >= 50)
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được " + SO_PHIEU_DUNG_THU + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được 50 phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
             else
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(SO_PHIEU_DUNG_THU - n) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(50-n) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 factory.Save();
             }
             
@@ -110,7 +106,7 @@ namespace CuahangNongduoc.Controller
                 KhachHangController ctrlKH = new KhachHangController();
                 ph.KhachHang = ctrlKH.LayKhachHang(Convert.ToString(tbl.Rows[0]["ID_KHACH_HANG"]));
                 ChiTietPhieuBanController ctrl = new ChiTietPhieuBanController();
-                ph.DatChiTiet(ctrl.ChiTietPhieuBan(ph.Id));
+                ph.ChiTiet = ctrl.ChiTietPhieuBan(ph.Id);
             }
             return ph;
         }
