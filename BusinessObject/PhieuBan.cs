@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -51,25 +51,48 @@ namespace CuahangNongduoc.BusinessObject
             set { m_ConNo = value; }
         }
 
-        // RF-02 #24 - Truoc: public IList<ChiTietPhieuBan> ChiTiet { get; set; }
-        private readonly List<ChiTietPhieuBan> m_ChiTiet = new List<ChiTietPhieuBan>();
+        private IList<ChiTietPhieuBan> m_ChiTiet;
 
-        public IEnumerable<ChiTietPhieuBan> ChiTiet
+        public IList<ChiTietPhieuBan> ChiTiet
         {
-            get { return m_ChiTiet.AsReadOnly(); }
+            get { return m_ChiTiet; }
+            set { m_ChiTiet = value; }
         }
 
-        public void ThemChiTiet(ChiTietPhieuBan ct)
-        {
-            m_ChiTiet.Add(ct);
-        }
 
-        public void DatChiTiet(IEnumerable<ChiTietPhieuBan> ds)
-        {
-            m_ChiTiet.Clear();
-            m_ChiTiet.AddRange(ds);
-        }
+        // ===== CN-06: thông tin hóa đơn mở rộng =====
+        private long m_TienHang;
+        public long TienHang { get { return m_TienHang; } set { m_TienHang = value; } }
 
+        private long m_TongDichVu;
+        public long TongDichVu { get { return m_TongDichVu; } set { m_TongDichVu = value; } }
+
+        private bool m_GiaoHang;
+        public bool GiaoHang { get { return m_GiaoHang; } set { m_GiaoHang = value; } }
+
+        private double m_KhoangCachKm;
+        public double KhoangCachKm { get { return m_KhoangCachKm; } set { m_KhoangCachKm = value; } }
+
+        private long m_PhiVanChuyen;
+        public long PhiVanChuyen { get { return m_PhiVanChuyen; } set { m_PhiVanChuyen = value; } }
+
+        private long m_ChietKhau;
+        public long ChietKhau { get { return m_ChietKhau; } set { m_ChietKhau = value; } }
+
+        private long m_TienKhuyenMai;
+        public long TienKhuyenMai { get { return m_TienKhuyenMai; } set { m_TienKhuyenMai = value; } }
+
+        private long m_TienGiamGia;      // số tiền giảm đã tính ra
+        public long TienGiamGia { get { return m_TienGiamGia; } set { m_TienGiamGia = value; } }
+
+        private int m_IdNguoiDung;       // 0 = chưa có
+        public int IdNguoiDung { get { return m_IdNguoiDung; } set { m_IdNguoiDung = value; } }
+
+        private ThongTinGiamGia m_GiamGia = new ThongTinGiamGia();
+        public ThongTinGiamGia GiamGia { get { return m_GiamGia; } set { m_GiamGia = value; } }
+
+        private IList<DichVuPhieuBan> m_DichVu = new List<DichVuPhieuBan>();
+        public IList<DichVuPhieuBan> DichVu { get { return m_DichVu; } set { m_DichVu = value; } }
 	
     }
 }
