@@ -7,7 +7,6 @@ using System.Text;
 using System.Windows.Forms;
 using CuahangNongduoc.Controller;
 using CuahangNongduoc.BusinessObject;
-using CuahangNongduoc.Strategy;
 
 namespace CuahangNongduoc
 {
@@ -18,14 +17,13 @@ namespace CuahangNongduoc
         MaSanPhamController ctrlMaSanPham = new MaSanPhamController();
         PhieuBanController ctrlPhieuBan = new PhieuBanController();
         ChiTietPhieuBanController ctrlChiTiet = new ChiTietPhieuBanController();
-        XuatKhoController ctrlXuatKho = new XuatKhoController();
-        CheckBox chkChiDinhLo = new CheckBox();   // tao bang code, khong dung Designer
-        Controll status = Controll.Normal;
+        IList<MaSanPham> deleted = new List<MaSanPham>();
+        FormEditState status = FormEditState.Normal;
 
         public frmBanLe()
         {
             InitializeComponent();
-            status = Controll.AddNew;
+            status = FormEditState.AddNew;
         }
 
      
@@ -33,18 +31,11 @@ namespace CuahangNongduoc
             : this()
         {
             this.ctrlPhieuBan = ctrlPB;
-            status = Controll.Normal;
+            status = FormEditState.Normal;
         }
 
-        private void frmBanLe_Load(object sender, EventArgs e)
+        private void frmNhapHang_Load(object sender, EventArgs e)
         {
-            // [CN-04] mac dinh theo cau hinh cua hang (FIFO theo HSD hoac chi dinh lo)
-            chkChiDinhLo.Text = "Chỉ định lô";
-            chkChiDinhLo.AutoSize = true;
-            chkChiDinhLo.Checked = (ThamSoManager.Instance.LayCuaHang().PhuongPhapXuatKho == PhuongPhapXuatKho.ChiDinh);
-            chkChiDinhLo.Location = new Point(cmbMaSanPham.Right + 6, cmbMaSanPham.Top + 2);
-            cmbMaSanPham.Parent.Controls.Add(chkChiDinhLo);
-            chkChiDinhLo.BringToFront();
 
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
             ctrlMaSanPham.HienThiDataGridViewComboBox(colMaSanPham);
@@ -61,9 +52,9 @@ namespace CuahangNongduoc
             ctrlChiTiet.HienThiChiTiet(dgvDanhsachSP, txtMaPhieu.Text);
 
 
-            if (status == Controll.AddNew)
+            if (status == FormEditState.AddNew)
             {
-                txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan).ToString();
+                txtMaPhieu.Text = ThamSo.LayMaPhieuBan().ToString();
             }
             else
             {
@@ -75,7 +66,7 @@ namespace CuahangNongduoc
 
         void BindingSource_CurrentChanged(object sender, EventArgs e)
         {
-            if (status == Controll.Normal)
+            if (status == FormEditState.Normal)
             {
                 ctrlChiTiet.HienThiChiTiet(dgvDanhsachSP, txtMaPhieu.Text);
             }
@@ -89,7 +80,7 @@ namespace CuahangNongduoc
                 MaSanPhamController ctrlMSP = new MaSanPhamController();
 
                 cmbMaSanPham.SelectedIndexChanged -= new EventHandler(cmbMaSanPham_SelectedIndexChanged);
-                ctrlMSP.HienThiAutoComboBox(cmbSanPham.SelectedValue.ToString(), cmbMaSanPham, true);
+                ctrlMSP.HienThiAutoComboBox(cmbSanPham.SelectedValue.ToString(), cmbMaSanPham);
                 cmbMaSanPham.SelectedIndexChanged += new EventHandler(cmbMaSanPham_SelectedIndexChanged);
             }
         }
@@ -98,69 +89,42 @@ namespace CuahangNongduoc
         {
             MaSanPhamController ctrl = new MaSanPhamController();
             MaSanPham masp = ctrl.LayMaSanPham(cmbMaSanPham.SelectedValue.ToString());
-            numDonGia.Value = masp.GiaBanLe;
+            numDonGia.Value = masp.SanPham.GiaBanLe;
             txtGiaNhap.Text = masp.GiaNhap.ToString("#,###0");
-            txtGiaBanSi.Text = masp.GiaBanSi.ToString("#,###0");
-            txtGiaBanLe.Text = masp.GiaBanLe.ToString("#,###0");
-            txtGiaBQGQ.Text = masp.GiaBQGQ.ToString("#,###0");
+            txtGiaBanSi.Text = masp.SanPham.GiaBanSi.ToString("#,###0");
+            txtGiaBanLe.Text = masp.SanPham.GiaBanLe.ToString("#,###0");
+            txtGiaBQGQ.Text = masp.SanPham.DonGiaNhap.ToString("#,###0");
 
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            // [CN-03 / CN-04] XuatKhoController phan lo (FIFO theo HSD hoac lo chi dinh) + [CN-05] tinh GIA_XUAT (Strategy)
-            if (cmbSanPham.SelectedValue == null)
+            
+            if (cmbMaSanPham.SelectedValue == null)
             {
-                MessageBox.Show("Vui lòng chọn Sản phẩm !", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show("Vui lòng chọn Mã sản phẩm !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            if (numSoLuong.Value <= 0)
+            else if (numSoLuong.Value <= 0)
             {
-                MessageBox.Show("Vui lòng nhập Số lượng !", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show("Vui lòng nhập Số lượng !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else if (numDonGia.Value * numSoLuong.Value != numThanhTien.Value)
+            {
+                MessageBox.Show("Thành tiền sai!", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                numTongTien.Value += numThanhTien.Value;
+                DataRow row = ctrlChiTiet.NewRow();
+                row["ID_MA_SAN_PHAM"] = cmbMaSanPham.SelectedValue;
+                row["ID_PHIEU_BAN"] = txtMaPhieu.Text;
+                row["DON_GIA"] = numDonGia.Value;
+                row["SO_LUONG"] = numSoLuong.Value;
+                row["THANH_TIEN"] = numThanhTien.Value;
+                ctrlChiTiet.Add(row);
+
             }
 
-            PhuongPhapXuatKho pp = chkChiDinhLo.Checked ? PhuongPhapXuatKho.ChiDinh : PhuongPhapXuatKho.FIFO;
-            string idLo = cmbMaSanPham.SelectedValue == null ? null : Convert.ToString(cmbMaSanPham.SelectedValue);
-            if (pp == PhuongPhapXuatKho.ChiDinh && idLo == null)
-            {
-                MessageBox.Show("Vui lòng chọn Mã sản phẩm (lô) !", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            KetQuaPhanLo kq = ctrlXuatKho.TaoDongXuat(Convert.ToString(cmbSanPham.SelectedValue),
-                (int)numSoLuong.Value, pp, idLo, dtNgayLapPhieu.Value.Date, ctrlChiTiet.LayDaGiu());
-            if (!kq.ThanhCong)
-            {
-                MessageBox.Show(kq.ThongBaoLoi, "Xuất kho", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            IList<MaSanPham> cacLo = new MaSanPhamController().LayLoConHang(Convert.ToString(cmbSanPham.SelectedValue));
-            long giaXuat = KhoStrategyFactory.TuCauHinh().TaoGiaXuat().TinhGiaXuat(cacLo);
-            long donGia = (long)numDonGia.Value;
-            foreach (DongXuat d in kq.Dong)
-            {
-                DataRow dong = ctrlChiTiet.TimDongTheoLo(d.SoLo);
-                if (dong != null)
-                {
-                    dong["SO_LUONG"] = Convert.ToInt32(dong["SO_LUONG"]) + d.SoLuong;
-                    dong["THANH_TIEN"] = Convert.ToInt64(dong["SO_LUONG"]) * donGia;
-                    dong["GIA_XUAT"] = giaXuat;
-                }
-                else
-                {
-                    dong = ctrlChiTiet.NewRow();
-                    dong["ID_MA_SAN_PHAM"] = d.SoLo;
-                    dong["ID_PHIEU_BAN"] = txtMaPhieu.Text;
-                    dong["DON_GIA"] = donGia;
-                    dong["SO_LUONG"] = d.SoLuong;
-                    dong["THANH_TIEN"] = d.SoLuong * donGia;
-                    dong["GIA_XUAT"] = giaXuat;
-                    ctrlChiTiet.Add(dong);
-                }
-                numTongTien.Value += d.SoLuong * donGia;
-            }
         }
 
         private void numDonGia_ValueChanged(object sender, EventArgs e)
@@ -176,47 +140,37 @@ namespace CuahangNongduoc
         private void toolLuu_Click(object sender, EventArgs e)
         {
             bindingNavigatorPositionItem.Focus();
-            if (this.Luu())
-            {
-                status = Controll.Normal;
-                this.Allow(false);
-            }
+            this.Luu();
+            status = FormEditState.Normal;
+            this.Allow(false);
         }
 
-        bool Luu()
+        void Luu()
         {
-            if (status == Controll.AddNew)
+            if (status == FormEditState.AddNew)
             {
-                return ThemMoi();
+                ThemMoi();
             }
             else
             {
-                return CapNhat();
+                CapNhat();
             }
         }
 
-        bool CapNhat()
+        void CapNhat()
         {
-            string loi;
-            if (!ctrlChiTiet.Save(out loi))
+            foreach (MaSanPham masp in deleted)
             {
-                MessageBox.Show(loi, "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                CuahangNongduoc.DataLayer.MaSanPhamFactory.CapNhatSoLuong(masp.Id, masp.SoLuong);
             }
+            deleted.Clear();
+
+            ctrlChiTiet.Save();
 
             ctrlPhieuBan.Update();
-            HienCanhBaoKho();
-            return true;
-        }
 
-        void HienCanhBaoKho()
-        {
-            string[] canhBao = TonKhoSubject.HopThu.LayVaXoa();
-            if (canhBao.Length > 0)
-                MessageBox.Show(string.Join(Environment.NewLine, canhBao), "Cảnh báo kho", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-
-        bool ThemMoi()
+        void ThemMoi()
         {
 
             DataRow row = ctrlPhieuBan.NewRow();
@@ -233,35 +187,28 @@ namespace CuahangNongduoc
             if (ctrl.LayPhieuBan(txtMaPhieu.Text) != null)
             {
                 MessageBox.Show("Mã Phiếu bán này đã tồn tại !", "Phieu Nhap", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
+                return;
             }
             if (ThamSo.LaSoNguyen(txtMaPhieu.Text))
             {
                 long so = Convert.ToInt64(txtMaPhieu.Text);
-                if (so >= ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan))
+                if (so >= ThamSo.LayMaPhieuBan())
                 {
-                    ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuBan, so + 1);
+                    ThamSo.GanMaPhieuBan(so + 1);
                 }
             }
 
             ctrlPhieuBan.Save();
 
-            string loi;
-            if (!ctrlChiTiet.Save(out loi))
-            {
-                MessageBox.Show(loi, "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            HienCanhBaoKho();
-            return true;
+            ctrlChiTiet.Save();
 
         }
 
         private void toolLuu_Them_Click(object sender, EventArgs e)
         {
             ctrlPhieuBan = new PhieuBanController();
-            status = Controll.AddNew;
-            txtMaPhieu.Text = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan).ToString();
+            status = FormEditState.AddNew;
+            txtMaPhieu.Text = ThamSo.LayMaPhieuBan().ToString();
             numTongTien.Value = 0;
             ctrlChiTiet.HienThiChiTiet(dgvDanhsachSP, txtMaPhieu.Text);
             this.Allow(true);
@@ -274,6 +221,7 @@ namespace CuahangNongduoc
                 BindingSource bs = ((BindingSource)dgvDanhsachSP.DataSource);
                 DataRowView row = (DataRowView)bs.Current;
                 numTongTien.Value -= Convert.ToInt64(row["THANH_TIEN"]);
+                deleted.Add(new MaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]), Convert.ToInt32(row["SO_LUONG"])));
                 bs.RemoveCurrent();
             }
            
@@ -290,12 +238,14 @@ namespace CuahangNongduoc
                 BindingSource bs = ((BindingSource)dgvDanhsachSP.DataSource);
                 DataRowView row = (DataRowView)bs.Current;
                 numTongTien.Value -= Convert.ToInt64(row["THANH_TIEN"]);
+                deleted.Add(new MaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]), Convert.ToInt32(row["SO_LUONG"])));
+
             }
         }
 
         private void toolLuuIn_Click(object sender, EventArgs e)
         {
-            if (status != Controll.Normal)
+            if (status != FormEditState.Normal)
             {
                 MessageBox.Show("Vui lòng lưu lại Phiếu bán hiện tại!", "Phieu Ban Le", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -327,7 +277,7 @@ namespace CuahangNongduoc
 
         private void toolChinhSua_Click(object sender, EventArgs e)
         {
-            status = Controll.Edit;
+            status = FormEditState.Edit;
             this.Allow(true);
         }
 
@@ -343,7 +293,7 @@ namespace CuahangNongduoc
 
         private void toolThoat_Click(object sender, EventArgs e)
         {
-            if (status != Controll.Normal)
+            if (status != FormEditState.Normal)
             {
                 if (MessageBox.Show("Bạn có muốn lưu lại Phiếu bán này không?", "Phieu Ban Le", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
@@ -364,7 +314,7 @@ namespace CuahangNongduoc
                     IList<ChiTietPhieuBan> ds = ctrl.ChiTietPhieuBan(view["ID"].ToString());
                     foreach (ChiTietPhieuBan ct in ds)
                     {
-                        CuahangNongduoc.DataLayer.MaSanPhanFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
+                        CuahangNongduoc.DataLayer.MaSanPhamFactory.CapNhatSoLuong(ct.MaSanPham.Id, ct.SoLuong);
                     }
                     bindingNavigator.BindingSource.RemoveCurrent();
                     ctrlPhieuBan.Save();
@@ -386,9 +336,6 @@ namespace CuahangNongduoc
             ctrlSanPham.HienthiAutoComboBox(cmbSanPham);
         }
 
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
-        }
 
      }
 }

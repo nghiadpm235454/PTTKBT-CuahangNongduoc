@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using CuahangNongduoc.DataLayer;
@@ -33,9 +33,12 @@ namespace CuahangNongduoc.Controller
             bs.MoveNext();
             factory.Save();
         }
-        public void Save()
+        // [R33 Save() trả kết quả chuẩn]
+        // Trước: public void Save() { factory.Save(); }   (nuốt kết quả, 6 controller khác đã trả bool)
+        // Sau: public bool Save() { return factory.Save(); }  (giống KhachHang/SanPham/DonViTinh... ; nơi gọi cũ bỏ qua giá trị trả về vẫn chạy)
+        public bool Save()
         {
-            factory.Save();
+            return factory.Save();
         }
 
     
@@ -46,16 +49,16 @@ namespace CuahangNongduoc.Controller
             NhaCungCapController ctrlNCC = new NhaCungCapController();
             if (tbl.Rows.Count > 0)
             {
-
+                DataRow row = tbl.Rows[0];
                 ph = new PhieuNhap();
-                ph.Id =Convert.ToString( tbl.Rows[0]["ID"]);
-                ph.NgayNhap = Convert.ToDateTime(tbl.Rows[0]["NGAY_NHAP"]);
-                ph.TongTien = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.DaTra = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.ConNo = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.NhaCungCap = ctrlNCC.LayNCC(Convert.ToString(tbl.Rows[0]["ID_NHA_CUNG_CAP"]));
+                ph.Id = Convert.ToString(row["ID"]);
+                ph.NgayNhap = row["NGAY_NHAP"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(row["NGAY_NHAP"]);
+                ph.TongTien = row["TONG_TIEN"] == DBNull.Value ? 0 : Convert.ToInt64(row["TONG_TIEN"]);
+                ph.DaTra = row["DA_TRA"] == DBNull.Value ? 0 : Convert.ToInt64(row["DA_TRA"]);
+                ph.ConNo = row["CON_NO"] == DBNull.Value ? 0 : Convert.ToInt64(row["CON_NO"]);
+                ph.NhaCungCap = ctrlNCC.LayNCC(Convert.ToString(row["ID_NHA_CUNG_CAP"]));
                 MaSanPhamController ctrl = new MaSanPhamController();
-                ph.DatChiTiet(ctrl.ChiTietPhieuNhap(ph.Id));
+                ph.ChiTiet = ctrl.ChiTietPhieuNhap(ph.Id);
             }
             return ph;
         }

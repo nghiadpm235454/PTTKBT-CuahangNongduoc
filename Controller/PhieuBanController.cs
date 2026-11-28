@@ -8,12 +8,9 @@ using System.Data;
 
 namespace CuahangNongduoc.Controller
 {
-    
+
     public class PhieuBanController
     {
-        // RF-02 #22 - Truoc: so 50 lap lai trong Save(). Sau: hang so co ten.
-        private const int SO_PHIEU_DUNG_THU = 50;
-
         PhieuBanFactory factory = new PhieuBanFactory();
 
         BindingSource bs = new BindingSource();
@@ -38,18 +35,17 @@ namespace CuahangNongduoc.Controller
         }
         public void Save()
         {
-            int n = PhieuBanFactory.LaySoPhieu();
-            if (n >= SO_PHIEU_DUNG_THU)
+            if (PhieuBanFactory.LaySoPhieu() >= 50)
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được " + SO_PHIEU_DUNG_THU + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được 50 phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
             else
             {
-                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(SO_PHIEU_DUNG_THU - n) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Đây là bản dùng thử! Chỉ lưu được thêm " + Convert.ToString(50 - PhieuBanFactory.LaySoPhieu()) + " phiếu bán!", "Phieu Ban", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 factory.Save();
             }
-            
+
         }
         public void HienthiPhieuBanLe(BindingNavigator bn, DataGridView dg)
         {
@@ -67,7 +63,7 @@ namespace CuahangNongduoc.Controller
             dg.DataSource = bs;
         }
 
-        public void HienthiPhieuBan(BindingNavigator bn,ComboBox cmb, TextBox txt, DateTimePicker dt, NumericUpDown numTongTien, NumericUpDown numDatra, NumericUpDown numConNo)
+        public void HienthiPhieuBan(BindingNavigator bn, ComboBox cmb, TextBox txt, DateTimePicker dt, NumericUpDown numTongTien, NumericUpDown numDatra, NumericUpDown numConNo)
         {
 
             bn.BindingSource = bs;
@@ -102,7 +98,7 @@ namespace CuahangNongduoc.Controller
 
                 ph = new PhieuBan();
                 ph.Id = Convert.ToString(tbl.Rows[0]["ID"]);
-                
+
                 ph.NgayBan = Convert.ToDateTime(tbl.Rows[0]["NGAY_BAN"]);
                 ph.TongTien = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
                 ph.DaTra = Convert.ToInt64(tbl.Rows[0]["DA_TRA"]);
@@ -110,7 +106,7 @@ namespace CuahangNongduoc.Controller
                 KhachHangController ctrlKH = new KhachHangController();
                 ph.KhachHang = ctrlKH.LayKhachHang(Convert.ToString(tbl.Rows[0]["ID_KHACH_HANG"]));
                 ChiTietPhieuBanController ctrl = new ChiTietPhieuBanController();
-                ph.DatChiTiet(ctrl.ChiTietPhieuBan(ph.Id));
+                ph.ChiTiet = ctrl.ChiTietPhieuBan(ph.Id);
             }
             return ph;
         }

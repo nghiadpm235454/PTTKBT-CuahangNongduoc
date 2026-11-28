@@ -12,14 +12,16 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable DanhsachKhachHang(bool loai)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE LOAI_KH = " + (loai ? 1 : 0));
+            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE LOAI_KH = @loai");
+            cmd.Parameters.Add("@loai", SqlDbType.Int).Value = loai ? 1 : 0;
             m_Ds.Load(cmd);
 
             return m_Ds;
         }
         public DataTable TimHoTen(String hoten, bool loai)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE HO_TEN LIKE '%' + @hoten + '%' AND LOAI_KH = " + (loai ? 1 : 0));
+            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE HO_TEN LIKE '%' + @hoten + '%' AND LOAI_KH = @loai");
+            cmd.Parameters.Add("@loai", SqlDbType.Int).Value = loai ? 1 : 0;
             cmd.Parameters.Add("@hoten", SqlDbType.NVarChar).Value = hoten;
             m_Ds.Load(cmd);
 
@@ -28,7 +30,8 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable TimDiaChi(String diachi, bool loai)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE DIA_CHI LIKE '%' + @diachi + '%' AND LOAI_KH = " + (loai ? 1 : 0));
+            SqlCommand cmd = new SqlCommand("SELECT * FROM KHACH_HANG WHERE DIA_CHI LIKE '%' + @diachi + '%' AND LOAI_KH = @loai");
+            cmd.Parameters.Add("@loai", SqlDbType.Int).Value = loai ? 1 : 0;
             cmd.Parameters.Add("@diachi", SqlDbType.NVarChar).Value = diachi;
             m_Ds.Load(cmd);
 

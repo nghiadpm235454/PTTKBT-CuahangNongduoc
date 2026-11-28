@@ -34,26 +34,25 @@ namespace CuahangNongduoc
             
         }
 
+        // [RF-33 Remove Control Flag]
+        // Trước: bool ok = true;
+        //        try { long nam = Convert.ToInt32(toolNam.Text); if (nam < 2000 || nam > 9999) { ok = false; } }
+        //        catch { ok = false; }
+        //        if (!ok) { MessageBox.Show(...); e.Cancel = true; }
+        // Sau: LaNamHopLe() trả kết quả bằng return (TryParse thay try/catch), không còn biến cờ ok.
+        private static bool LaNamHopLe(string text)
+        {
+            int nam;
+            if (!int.TryParse(text, out nam)) return false;
+            return nam >= 2000 && nam <= 9999;
+        }
+
         private void toolNam_Validating(object sender, CancelEventArgs e)
         {
-            bool ok = true;
-            try
-            {
-                long nam = Convert.ToInt32(toolNam.Text);
-                if (nam < 2000 || nam > 9999)
-                {
-                    ok = false;
-                }
-            }
-            catch
-            {
-                ok = false;
-            }
-            if (!ok)
-            {
-                MessageBox.Show("Thông tin năm không hợp lệ!", "Tong Hop Du No", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                e.Cancel = true;
-            }
+            if (LaNamHopLe(toolNam.Text)) return;
+
+            MessageBox.Show("Thông tin năm không hợp lệ!", "Tong Hop Du No", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            e.Cancel = true;
         }
 
         private void toolTongHop_Click(object sender, EventArgs e)

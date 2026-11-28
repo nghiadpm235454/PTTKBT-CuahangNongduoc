@@ -10,13 +10,6 @@ namespace CuahangNongduoc.DataLayer
     {
         DataService m_Ds = new DataService();
 
-        public void LoadSchema()
-        {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM DU_NO_KH WHERE ID_KHACH_HANG='-1'");
-            m_Ds.Load(cmd);
-
-        }
-
         public DataTable DanhsachDuNo(int thang, int nam)
         {
             SqlCommand cmd = new SqlCommand("SELECT * FROM DU_NO_KH WHERE THANG=@thang AND NAM=@nam");
