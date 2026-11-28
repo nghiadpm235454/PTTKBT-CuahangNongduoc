@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using CuahangNongduoc.DataLayer;
@@ -22,9 +22,12 @@ namespace CuahangNongduoc.Controller
         {
             factory.Add(row);
         }
-        public void Save()
+        // [R33 Save() trả kết quả chuẩn]
+        // Trước: public void Save() { factory.Save(); }   (nuốt kết quả, 6 controller khác đã trả bool)
+        // Sau: public bool Save() { return factory.Save(); }  (giống KhachHang/SanPham/DonViTinh... ; nơi gọi cũ bỏ qua giá trị trả về vẫn chạy)
+        public bool Save()
         {
-            factory.Save();
+            return factory.Save();
         }
 
         public PhieuThanhToan LayPhieuThanhToan(String id)

@@ -47,7 +47,7 @@ namespace CuahangNongduoc.Controller
                 item.SubItems.Add(ct.MaSanPham.Id);
                 item.SubItems.Add(ct.MaSanPham.GiaNhap.ToString("#,###0"));
                 item.SubItems.Add(ct.MaSanPham.SoLuong.ToString("#,###0"));
-                long thanhtien = (ct.MaSanPham.SoLuong + ct.MaSanPham.GiaNhap);
+                long thanhtien = ct.MaSanPham.SoLuong * ct.MaSanPham.GiaNhap;
                 item.SubItems.Add(thanhtien.ToString("#,###0"));
                 item.SubItems.Add(ThoiGian.DinhDang(ct.MaSanPham.NgaySanXuat));   // [#16 Foreign Method] TRUOC: .ToString("dd/MM/yyyy")
                 item.SubItems.Add(ThoiGian.DinhDang(ct.MaSanPham.NgayHetHan));   // [#16 Foreign Method] TRUOC: .ToString("dd/MM/yyyy")

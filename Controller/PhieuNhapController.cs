@@ -8,7 +8,6 @@ using System.Data;
 
 namespace CuahangNongduoc.Controller
 {
-    
     public class PhieuNhapController
     {
         PhieuNhapFactory factory = new PhieuNhapFactory();
@@ -33,12 +32,13 @@ namespace CuahangNongduoc.Controller
             bs.MoveNext();
             factory.Save();
         }
-        public void Save()
+
+        // [R33 Save() trả kết quả chuẩn]
+        public bool Save()
         {
-            factory.Save();
+            return factory.Save();
         }
 
-    
         public PhieuNhap LayPhieuNhap(String id)
         {
             DataTable tbl = factory.LayPhieuNhap(id);
@@ -46,14 +46,14 @@ namespace CuahangNongduoc.Controller
             NhaCungCapController ctrlNCC = new NhaCungCapController();
             if (tbl.Rows.Count > 0)
             {
-
+                DataRow row = tbl.Rows[0];
                 ph = new PhieuNhap();
-                ph.Id =Convert.ToString( tbl.Rows[0]["ID"]);
-                ph.NgayNhap = Convert.ToDateTime(tbl.Rows[0]["NGAY_NHAP"]);
-                ph.TongTien = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.DaTra = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.ConNo = Convert.ToInt64(tbl.Rows[0]["TONG_TIEN"]);
-                ph.NhaCungCap = ctrlNCC.LayNCC(Convert.ToString(tbl.Rows[0]["ID_NHA_CUNG_CAP"]));
+                ph.Id = Convert.ToString(row["ID"]);
+                ph.NgayNhap = row["NGAY_NHAP"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(row["NGAY_NHAP"]);
+                ph.TongTien = row["TONG_TIEN"] == DBNull.Value ? 0 : Convert.ToInt64(row["TONG_TIEN"]);
+                ph.DaTra = row["DA_TRA"] == DBNull.Value ? 0 : Convert.ToInt64(row["DA_TRA"]);
+                ph.ConNo = row["CON_NO"] == DBNull.Value ? 0 : Convert.ToInt64(row["CON_NO"]);
+                ph.NhaCungCap = ctrlNCC.LayNCC(Convert.ToString(row["ID_NHA_CUNG_CAP"]));
                 MaSanPhamController ctrl = new MaSanPhamController();
                 ph.DatChiTiet(ctrl.ChiTietPhieuNhap(ph.Id));
             }
@@ -61,19 +61,17 @@ namespace CuahangNongduoc.Controller
         }
         public void HienthiPhieuNhap(BindingNavigator bn, DataGridView dg)
         {
-            
             bs.DataSource = factory.DanhsachPhieuNhap();
             bn.BindingSource = bs;
             dg.DataSource = bs;
         }
 
-        public void HienthiPhieuNhap(BindingNavigator bn,TextBox txt,ComboBox cmb, DateTimePicker dt, NumericUpDown numTongTien, NumericUpDown numDaTra, NumericUpDown numConNo)
+        public void HienthiPhieuNhap(BindingNavigator bn, TextBox txt, ComboBox cmb, DateTimePicker dt, NumericUpDown numTongTien, NumericUpDown numDaTra, NumericUpDown numConNo)
         {
-
             bn.BindingSource = bs;
 
             txt.DataBindings.Clear();
-            txt.DataBindings.Add("Text", bs,"ID");
+            txt.DataBindings.Add("Text", bs, "ID");
 
             cmb.DataBindings.Clear();
             cmb.DataBindings.Add("SelectedValue", bs, "ID_NHA_CUNG_CAP");
@@ -89,13 +87,11 @@ namespace CuahangNongduoc.Controller
 
             numConNo.DataBindings.Clear();
             numConNo.DataBindings.Add("Value", bs, "CON_NO");
-            
         }
 
         public void TimPhieuNhap(String maNCC, DateTime dt)
         {
             factory.TimPhieuNhap(maNCC, dt);
         }
-   
     }
 }

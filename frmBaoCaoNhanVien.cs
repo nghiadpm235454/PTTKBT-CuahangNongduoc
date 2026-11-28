@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
 using CuahangNongduoc.DataLayer;
+using CuahangNongduoc.Security;
 
 namespace CuahangNongduoc
 {

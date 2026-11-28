@@ -26,11 +26,13 @@ namespace CuahangNongduoc
             // Chục
             switch (num.Substring(1, 1))
             {
-                case "0": if (num.Substring(2, 1) != "0" && num.Substring(0, 1) != "0")
+                case "0":
+                    if (num.Substring(2, 1) != "0" && num.Substring(0, 1) != "0")
                     {
                         chuc = "linh ";
                     }
-                    else { chuc = ""; }; break;
+                    else { chuc = ""; }
+                    ; break;
                 case "1": chuc = "mười "; break;
                 default:
                     chuc = No[Convert.ToByte(num.Substring(1, 1))] + " mươi "; break;
@@ -39,14 +41,16 @@ namespace CuahangNongduoc
             switch (num.Substring(2, 1))
             {
                 case "0": donvi = ""; break;
-                case "1": if ((num.Substring(1, 1) == "0") || (num.Substring(1, 1) == "1"))
+                case "1":
+                    if ((num.Substring(1, 1) == "0") || (num.Substring(1, 1) == "1"))
                     {
                         donvi = "một";
                     }
                     else
                     {
                         donvi = "mốt";
-                    }; break;
+                    }
+                    ; break;
                 case "5":
                     if (num.Substring(1, 1) != "0")
                     {
@@ -55,7 +59,8 @@ namespace CuahangNongduoc
                     else
                     {
                         donvi = "năm";
-                    }; break;
+                    }
+                    ; break;
                 default:
                     donvi = No[Convert.ToByte(num.Substring(2, 1))]; break;
             }
@@ -104,15 +109,17 @@ namespace CuahangNongduoc
         private string No2Str(string num)
         {
             string intstr, fracstr, am;
+            // Biến tạm giữ số đã bỏ dấu "-", không gán lại tham số num
+            string soDuong = num;
             // Xử lý khi là số âm
             if (num.Substring(0, 1) == "-")
             {
                 am = "âm ";
-                num = num.Replace("-", "");
+                soDuong = num.Replace("-", "");
             }
             else { am = ""; }
 
-            string[] str = num.Split('.');
+            string[] str = soDuong.Split('.');
             // Số quá lớn nhiều hơn 27 chữ số
             if (str[0].Length > 28)
                 throw new Exception("Số lớn quá không hiển thị được! ");
@@ -172,38 +179,41 @@ namespace CuahangNongduoc
 
         public string NumberToString(string no)
         {
-            // xử lý trường hợp dáu phảy thay cho dấu chấm
-            if (no.IndexOf(",", 0, 1) != 0) { no = no.Replace(",", "."); }
-            // Xoá các ký tự trắng ở đầu và cuối
-            no = no.Trim();
+            if (string.IsNullOrWhiteSpace(no)) return "không";
+
+            // Biến tạm thay cho việc gán lại tham số no
+            string so = no.Trim().Replace(",", ".");
             // Xử lý khi nó là chữ chứ không phải là số
-            if (no == "0") return "không";
-            if (no == "") return "không";
+            if (so == "0" || so == "") return "không";
             double val;
             try
             {
-                val = Convert.ToDouble(no);
+                val = Convert.ToDouble(so, System.Globalization.CultureInfo.InvariantCulture);
             }
             catch
             {
                 throw new Exception("Đây không phải là số");
             }
-            // tiêu diệt các số không
-            while (no.Substring(0, 1) == "0")
+            if (val == 0) return "không";
+            // tiêu diệt các số không đứng đầu (giữ lại ít nhất 1 ký tự nếu là "0...")
+            while (so.Length > 1 && so.Substring(0, 1) == "0" && so.Substring(1, 1) != ".")
             {
-                no = no.Substring(1, no.Length - 1);
+                so = so.Substring(1, so.Length - 1);
             }
 
-            if (no.IndexOf(".", 0, 1) != -1)
+            if (so.IndexOf(".") != -1)
             {
-                while (no.Substring(no.Length - 1, 1) == "0")
+                while (so.Length > 1 && so.Substring(so.Length - 1, 1) == "0")
                 {
-                    no = no.Substring(0, no.Length - 1);
+                    so = so.Substring(0, so.Length - 1);
+                }
+                if (so.EndsWith("."))
+                {
+                    so = so.Substring(0, so.Length - 1);
                 }
             }
-            no = No2Str(no);
 
-            return no;
+            return No2Str(so);
         }
     }
 }

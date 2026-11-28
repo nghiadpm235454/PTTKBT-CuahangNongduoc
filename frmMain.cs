@@ -1,141 +1,151 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.Win32;
+using CuahangNongduoc.Patterns;
+using CuahangNongduoc.Security;
 
 namespace CuahangNongduoc
 {
     public partial class frmMain : Form
     {
+        // [RF-31 Consolidate Conditional Expression] + [Proxy]
+        // Trước: 19 field form + 19 handler, mỗi handler lặp
+        //          if (X == null || X.IsDisposed) { X = new frmX(); X.MdiParent = this; X.Show(); } else X.Activate();
+        //        và không kiểm quyền.
+        // Sau: mỗi handler chỉ gọi Mo<frmX>(ChucNang.XXX); điều kiện mở/kích hoạt nằm ở MoForm<T>,
+        //      kiểm đăng nhập + quyền nằm ở MoChucNangProxy (Chain of Responsibility).
+        private readonly Dictionary<Type, IMoChucNang> m_ChucNang = new Dictionary<Type, IMoChucNang>();
+
         public frmMain()
         {
             InitializeComponent();
             ThemMenuBaoCaoP10();
         }
-        frmDonViTinh DonViTinh = null;
 
-        private void mnuDonViTinh_Click(object sender, EventArgs e)
+        private void Mo<T>(string maChucNang) where T : Form, new()
         {
-            if (DonViTinh == null || DonViTinh.IsDisposed)
+            IMoChucNang chucNang;
+            if (!m_ChucNang.TryGetValue(typeof(T), out chucNang))
             {
-                DonViTinh = new frmDonViTinh();
-                DonViTinh.MdiParent = this;
-                DonViTinh.Show();
-                
+                chucNang = new MoChucNangProxy(new MoForm<T>(), maChucNang);
+                m_ChucNang[typeof(T)] = chucNang;
             }
-            else
-                DonViTinh.Activate();
+            chucNang.Mo(this);
         }
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            //RegistryKey regKey = Registry.CurrentUser.OpenSubKey("Software\\CoolSoft\\CuahangNongduoc");
-
-            //if (regKey == null)
-            //{
-            //    DataService.m_ConnectString = "";
-            //}
-            //else
-            //{
-            //    try
-            //    {
-            //        DataService.m_ConnectString = (String)regKey.GetValue("ConnectString");
-            //    }
-            //    catch
-            //    {
-            //    }
-            //    finally
-            //    {
-            //        regKey.Close();
-            //    }
-            //}
-
-            //if (DataService.OpenConnection() == false)
-            //{
-            //    MessageBox.Show("Không thể kết nối dữ liệu!", "Cua hang Nong duoc", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    this.Close();
-            //}
-
             DataService.OpenConnection();
-            
-        }
-        frmSanPham SanPham = null;
-        private void mnuSanPham_Click(object sender, EventArgs e)
-        {
-            if (SanPham == null || SanPham.IsDisposed)
-            {
-                SanPham = new frmSanPham();
-                SanPham.MdiParent = this;
-                SanPham.Show();
-            }
-            else
-                SanPham.Activate();
-        }
-        frmKhachHang KhachHang = null;
-        private void mnuKhachHang_Click(object sender, EventArgs e)
-        {
-            if (KhachHang == null || KhachHang.IsDisposed)
-            {
-                KhachHang = new frmKhachHang();
-                KhachHang.MdiParent = this;
-                KhachHang.Show();
-            }
-            else
-                KhachHang.Activate();
-        }
-        frmDaiLy DaiLy = null;
-        private void mnuDaiLy_Click(object sender, EventArgs e)
-        {
-            if (DaiLy == null || DaiLy.IsDisposed)
-            {
-                DaiLy = new frmDaiLy();
-                DaiLy.MdiParent = this;
-                DaiLy.Show();
-            }
-            else
-                DaiLy.Activate();
 
+            this.Text = this.Text + " - " + PhienDangNhap.HoTen + " (" + PhienDangNhap.Role + ")";
+            ApDungPhanQuyen();
         }
-        frmDanhsachPhieuNhap NhapHang = null;
-        private void mnuNhapHang_Click(object sender, EventArgs e)
+
+        // ---------- Ẩn/hiện menu, thanh công cụ, task pane theo quyền (UI-05) ----------
+        private void ApDungPhanQuyen()
         {
-            if (NhapHang == null || NhapHang.IsDisposed)
+            // Menu
+            Dat(mnuLyDoChi, ChucNang.QL_LYDOCHI);
+            Dat(mnuDonViTinh, ChucNang.QL_DONVITINH);
+            Dat(mnuSanPham, ChucNang.QL_SANPHAM);
+            Dat(mnuKhachHang, ChucNang.QL_KHACHHANG);
+            Dat(mnuDaiLy, ChucNang.QL_DAILY);
+            Dat(mnuNhaCungCap, ChucNang.QL_NHACUNGCAP);
+            Dat(mnuNhapHang, ChucNang.NHAP_HANG);
+            Dat(mnuBanHangKH, ChucNang.BAN_LE);
+            Dat(mnuBanHangDL, ChucNang.BAN_SI);
+            Dat(mnuPhieuChi, ChucNang.PHIEU_CHI);
+            Dat(mnuThanhtoan, ChucNang.PHIEU_THU);
+            Dat(mnuTonghopDuno, ChucNang.TONGHOP_DUNO);
+            Dat(mnuBaocaoSoluongton, ChucNang.BC_TON);
+            Dat(mnuSoLuongBan, ChucNang.BC_BAN);
+            Dat(mnuSanphamHethan, ChucNang.BC_HETHAN);
+            Dat(mnuTuychinhThongtin, ChucNang.CAU_HINH);
+            Dat(mnuTrogiupHuongdan, ChucNang.TRO_GIUP);
+            Dat(mnuTrogiupLienhe, ChucNang.TRO_GIUP);
+
+            // Thanh công cụ
+            Dat(toolSanPham, ChucNang.QL_SANPHAM);
+            Dat(toolKhachHang, ChucNang.QL_KHACHHANG);
+            Dat(toolDaiLy, ChucNang.QL_DAILY);
+            Dat(toolNhaCungCap, ChucNang.QL_NHACUNGCAP);
+            Dat(toolNhapHang, ChucNang.NHAP_HANG);
+            Dat(toolBanSi, ChucNang.BAN_SI);
+            Dat(toolBanLe, ChucNang.BAN_LE);
+            Dat(toolTonKho, ChucNang.BC_TON);
+            Dat(toolPhieuChi, ChucNang.PHIEU_CHI);
+            Dat(toolThanhtoan, ChucNang.PHIEU_THU);
+
+            // Thanh chức năng (task pane)
+            Dat(itemDaiLy, ChucNang.QL_DAILY);
+            Dat(itemKhachHang, ChucNang.QL_KHACHHANG);
+            Dat(itemSanPham, ChucNang.QL_SANPHAM);
+            Dat(itemNhaCungCap, ChucNang.QL_NHACUNGCAP);
+            Dat(itemNhapHang, ChucNang.NHAP_HANG);
+            Dat(itemBanSi, ChucNang.BAN_SI);
+            Dat(itemBanLe, ChucNang.BAN_LE);
+            Dat(itemThanhToan, ChucNang.PHIEU_THU);
+            Dat(itemPhieuChi, ChucNang.PHIEU_CHI);
+            Dat(itemTonghopDoanhthu, ChucNang.BC_BAN);
+            Dat(itemTonKho, ChucNang.BC_TON);
+            Dat(taskItem1, ChucNang.BC_HETHAN);
+
+            // Menu cha: ẩn nếu không còn mục con nào hiện
+            foreach (ToolStripItem it in menuStrip.Items)
             {
-                NhapHang = new frmDanhsachPhieuNhap();
-                NhapHang.MdiParent = this;
-                NhapHang.Show();
+                ToolStripMenuItem cha = it as ToolStripMenuItem;
+                if (cha != null) CapNhatMenuCha(cha);
             }
-            else
-                NhapHang.Activate();
         }
-        frmDanhsachPhieuBanLe BanLe = null;
-        private void mnuBanHangKH_Click(object sender, EventArgs e)
+
+        private static void Dat(ToolStripItem muc, string maChucNang)
         {
-            if (BanLe == null || BanLe.IsDisposed)
-            {
-                BanLe = new frmDanhsachPhieuBanLe();
-                BanLe.MdiParent = this;
-                BanLe.Show();
-            }
-            else
-                BanLe.Activate();
+            muc.Visible = PhienDangNhap.CoQuyen(maChucNang);
         }
-        frmDanhsachPhieuBanSi BanSi = null;
-        private void mnuBanHangDL_Click(object sender, EventArgs e)
+
+        private static void Dat(Control muc, string maChucNang)
         {
-            if (BanSi == null || BanSi.IsDisposed)
-            {
-                BanSi = new frmDanhsachPhieuBanSi();
-                BanSi.MdiParent = this;
-                BanSi.Show();
-            }
-            else
-                BanSi.Activate();
+            muc.Visible = PhienDangNhap.CoQuyen(maChucNang);
         }
+
+        private static bool CapNhatMenuCha(ToolStripMenuItem cha)
+        {
+            // Doc Available thay vi Visible vi trong frmMain_Load form chua hien nen Visible luon tra ve false.
+            if (cha.DropDownItems.Count == 0) return cha.Available;
+
+            bool coMucCon = false;
+            foreach (ToolStripItem it in cha.DropDownItems)
+            {
+                ToolStripMenuItem con = it as ToolStripMenuItem;
+                if (con != null && CapNhatMenuCha(con)) coMucCon = true;
+            }
+            cha.Visible = coMucCon;
+            return coMucCon;
+        }
+
+        // ---------- Handler (tên giữ nguyên vì Designer đã nối sự kiện) ----------
+        private void mnuDonViTinh_Click(object sender, EventArgs e) { Mo<frmDonViTinh>(ChucNang.QL_DONVITINH); }
+        private void mnuSanPham_Click(object sender, EventArgs e) { Mo<frmSanPham>(ChucNang.QL_SANPHAM); }
+        private void mnuKhachHang_Click(object sender, EventArgs e) { Mo<frmKhachHang>(ChucNang.QL_KHACHHANG); }
+        private void mnuDaiLy_Click(object sender, EventArgs e) { Mo<frmDaiLy>(ChucNang.QL_DAILY); }
+        private void mnuNhapHang_Click(object sender, EventArgs e) { Mo<frmDanhsachPhieuNhap>(ChucNang.NHAP_HANG); }
+        private void mnuBanHangKH_Click(object sender, EventArgs e) { Mo<frmDanhsachPhieuBanLe>(ChucNang.BAN_LE); }
+        private void mnuBanHangDL_Click(object sender, EventArgs e) { Mo<frmDanhsachPhieuBanSi>(ChucNang.BAN_SI); }
+        private void mnuThanhtoan_Click(object sender, EventArgs e) { Mo<frmThanhToan>(ChucNang.PHIEU_THU); }
+        private void mnuTonghopDuno_Click(object sender, EventArgs e) { Mo<frmDunoKhachhang>(ChucNang.TONGHOP_DUNO); }
+        private void mnuBaocaoDoanhThu_Click(object sender, EventArgs e) { Mo<frmDoanhThu>(ChucNang.BC_BAN); }
+        private void mnuBaocaoSoluongton_Click(object sender, EventArgs e) { Mo<frmSoLuongTon>(ChucNang.BC_TON); }
+        private void mnuSoLuongBan_Click(object sender, EventArgs e) { Mo<frmSoLuongBan>(ChucNang.BC_BAN); }
+        private void mnuSanphamHethan_Click(object sender, EventArgs e) { Mo<frmSanphamHethan>(ChucNang.BC_HETHAN); }
+        private void mnuTuychinhThongtin_Click(object sender, EventArgs e) { Mo<frmThongtinCuahang>(ChucNang.CAU_HINH); }
+        private void mnuTrogiupLienhe_Click(object sender, EventArgs e) { Mo<frmThongtinLienhe>(ChucNang.TRO_GIUP); }
+        private void mnuNhaCungCap_Click(object sender, EventArgs e) { Mo<frmNhaCungCap>(ChucNang.QL_NHACUNGCAP); }
+        private void mnuLyDoChi_Click(object sender, EventArgs e) { Mo<frmLyDoChi>(ChucNang.QL_LYDOCHI); }
+        private void mnuPhieuChi_Click(object sender, EventArgs e) { Mo<frmPhieuChi>(ChucNang.PHIEU_CHI); }
 
         private void mnuThanhCongCu_Click(object sender, EventArgs e)
         {
@@ -148,154 +158,15 @@ namespace CuahangNongduoc
             mnuThanhChucNang.Checked = !mnuThanhChucNang.Checked;
             taskPane.Visible = mnuThanhChucNang.Checked;
         }
-        frmThanhToan ThanhToan = null;
-        private void mnuThanhtoan_Click(object sender, EventArgs e)
-        {
-            if (ThanhToan == null || ThanhToan.IsDisposed)
-            {
-                ThanhToan = new frmThanhToan();
-                ThanhToan.MdiParent = this;
-                ThanhToan.Show();
-            }
-            else
-                ThanhToan.Activate();
-        }
-        frmDunoKhachhang DunoKhachhang = null;
-        private void mnuTonghopDuno_Click(object sender, EventArgs e)
-        {
-            if (DunoKhachhang == null || DunoKhachhang.IsDisposed)
-            {
-                DunoKhachhang = new frmDunoKhachhang();
-                DunoKhachhang.MdiParent = this;
-                DunoKhachhang.Show();
-            }
-            else
-                DunoKhachhang.Activate();
-        }
-        frmDoanhThu DoanhThu = null;
-        private void mnuBaocaoDoanhThu_Click(object sender, EventArgs e)
-        {
-            if (DoanhThu == null || DoanhThu.IsDisposed)
-            {
-                DoanhThu = new frmDoanhThu();
-                DoanhThu.MdiParent = this;
-                DoanhThu.Show();
-            }
-            else
-                DoanhThu.Activate();
-
-        }
-
-        frmSoLuongTon SoLuongTon = null;
-        private void mnuBaocaoSoluongton_Click(object sender, EventArgs e)
-        {
-
-            if (SoLuongTon == null || SoLuongTon.IsDisposed)
-            {
-                SoLuongTon = new frmSoLuongTon();
-                SoLuongTon.MdiParent = this;
-                SoLuongTon.Show();
-            }
-            else
-                SoLuongTon.Activate();
-
-        }
-        frmSoLuongBan SoLuongBan = null;
-        private void mnuSoLuongBan_Click(object sender, EventArgs e)
-        {
-            if (SoLuongBan == null || SoLuongBan.IsDisposed)
-            {
-                SoLuongBan = new frmSoLuongBan();
-                SoLuongBan.MdiParent = this;
-                SoLuongBan.Show();
-            }
-            else
-                SoLuongBan.Activate();
-        }
-        frmSanphamHethan SanphamHethan = null;
-        private void mnuSanphamHethan_Click(object sender, EventArgs e)
-        {
-            if (SanphamHethan == null || SanphamHethan.IsDisposed)
-            {
-                SanphamHethan = new frmSanphamHethan();
-                SanphamHethan.MdiParent = this;
-                SanphamHethan.Show();
-            }
-            else
-                SanphamHethan.Activate();
-        }
 
         private void mnuThoat_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-        frmThongtinCuahang ThongtinCuahang = null;
-        private void mnuTuychinhThongtin_Click(object sender, EventArgs e)
-        {
-
-            if (ThongtinCuahang == null || ThongtinCuahang.IsDisposed)
-            {
-                ThongtinCuahang = new frmThongtinCuahang();
-                ThongtinCuahang.MdiParent = this;
-                ThongtinCuahang.Show();
-            }
-            else
-                ThongtinCuahang.Activate();
-        }
-        frmThongtinLienhe ThongtinLienhe = null;
-        private void mnuTrogiupLienhe_Click(object sender, EventArgs e)
-        {
-            if (ThongtinLienhe == null || ThongtinLienhe.IsDisposed)
-            {
-                ThongtinLienhe = new frmThongtinLienhe();
-                ThongtinLienhe.MdiParent = this;
-                ThongtinLienhe.Show();
-            }
-            else
-                ThongtinLienhe.Activate();
-        }
-
-        frmNhaCungCap NhaCungCap = null;
-        private void mnuNhaCungCap_Click(object sender, EventArgs e)
-        {
-            if (NhaCungCap == null || NhaCungCap.IsDisposed)
-            {
-                NhaCungCap = new frmNhaCungCap();
-                NhaCungCap.MdiParent = this;
-                NhaCungCap.Show();
-            }
-            else
-                NhaCungCap.Activate();
-        }
-        frmLyDoChi LyDoChi = null;
-        private void mnuLyDoChi_Click(object sender, EventArgs e)
-        {
-            if (LyDoChi == null || LyDoChi.IsDisposed)
-            {
-                LyDoChi = new frmLyDoChi();
-                LyDoChi.MdiParent = this;
-                LyDoChi.Show();
-            }
-            else
-                LyDoChi.Activate();
-        }
-
-        frmPhieuChi PhieuChi = null;
-        private void mnuPhieuChi_Click(object sender, EventArgs e)
-        {
-            if (PhieuChi == null || PhieuChi.IsDisposed)
-            {
-                PhieuChi = new frmPhieuChi();
-                PhieuChi.MdiParent = this;
-                PhieuChi.Show();
-            }
-            else
-                PhieuChi.Activate();
-        }
 
         private void mnuTrogiupHuongdan_Click(object sender, EventArgs e)
         {
-           // Help.ShowHelp(this, "CPP.CHM");
+            // Help.ShowHelp(this, "CPP.CHM");
         }
     }
 }

@@ -8,12 +8,9 @@ using System.Data;
 
 namespace CuahangNongduoc.Controller
 {
-
     public class ChiTietPhieuBanController
     {
         ChiTietPhieuBanFactory factory = new ChiTietPhieuBanFactory();
-
-
 
         public void HienThiChiTiet(DataGridView dgv, String idPhieuBan)
         {
@@ -29,10 +26,13 @@ namespace CuahangNongduoc.Controller
         {
             factory.Add(row);
         }
-        public void Save()
+
+        // [R33 Save() trả kết quả chuẩn]
+        public bool Save()
         {
-            factory.Save();
+            return factory.Save();
         }
+
         // TRUOC: public void Save() { factory.Save(); }   (loi bi nuot)
         // SAU:   tra ket qua + thong bao loi de form hien thi
         public bool Save(out string loi)
@@ -60,65 +60,41 @@ namespace CuahangNongduoc.Controller
             return factory.TimDongTheoLo(idLo);
         }
 
+        private ChiTietPhieuBan DongSangChiTiet(DataRow row)
+        {
+            MaSanPhamController ctrl = new MaSanPhamController();
+            ChiTietPhieuBan ct = new ChiTietPhieuBan();
+            ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
+            ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
+            ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
+            ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
+            ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
+            return ct;
+        }
+
+        private IList<ChiTietPhieuBan> DongSangDanhSach(DataTable tbl)
+        {
+            IList<ChiTietPhieuBan> ds = new List<ChiTietPhieuBan>();
+            foreach (DataRow row in tbl.Rows)
+            {
+                ds.Add(DongSangChiTiet(row));
+            }
+            return ds;
+        }
 
         public IList<ChiTietPhieuBan> ChiTietPhieuBan(String idPhieuBan)
         {
-            IList<ChiTietPhieuBan> ds = new List<ChiTietPhieuBan>();
-
-            DataTable tbl = factory.LayChiTietPhieuBan(idPhieuBan);
-            foreach (DataRow row in tbl.Rows)
-            {
-                MaSanPhamController ctrl = new MaSanPhamController();
-                ChiTietPhieuBan ct = new ChiTietPhieuBan();
-                ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
-                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
-                ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
-                ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
-                ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
-
-                ds.Add(ct);
-            }
-            return ds;
+            return DongSangDanhSach(factory.LayChiTietPhieuBan(idPhieuBan));
         }
 
         public IList<ChiTietPhieuBan> ChiTietPhieuBan(DateTime dtNgayBan)
         {
-            IList<ChiTietPhieuBan> ds = new List<ChiTietPhieuBan>();
-
-            DataTable tbl = factory.LayChiTietPhieuBan(dtNgayBan);
-            foreach (DataRow row in tbl.Rows)
-            {
-                MaSanPhamController ctrl = new MaSanPhamController();
-                ChiTietPhieuBan ct = new ChiTietPhieuBan();
-                ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
-                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
-                ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
-                ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
-                ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
-
-                ds.Add(ct);
-            }
-            return ds;
+            return DongSangDanhSach(factory.LayChiTietPhieuBan(dtNgayBan));
         }
+
         public IList<ChiTietPhieuBan> ChiTietPhieuBan(int thang, int nam)
         {
-            IList<ChiTietPhieuBan> ds = new List<ChiTietPhieuBan>();
-
-            DataTable tbl = factory.LayChiTietPhieuBan(thang, nam);
-            foreach (DataRow row in tbl.Rows)
-            {
-                MaSanPhamController ctrl = new MaSanPhamController();
-                ChiTietPhieuBan ct = new ChiTietPhieuBan();
-                ct.DonGia = Convert.ToInt64(row["DON_GIA"]);
-                ct.GiaXuat = row["GIA_XUAT"] == DBNull.Value ? 0 : Convert.ToInt64(row["GIA_XUAT"]);
-                ct.SoLuong = Convert.ToInt32(row["SO_LUONG"]);
-                ct.ThanhTien = Convert.ToInt64(row["THANH_TIEN"]);
-                ct.MaSanPham = ctrl.LayMaSanPham(Convert.ToString(row["ID_MA_SAN_PHAM"]));
-
-                ds.Add(ct);
-            }
-            return ds;
+            return DongSangDanhSach(factory.LayChiTietPhieuBan(thang, nam));
         }
-
     }
 }

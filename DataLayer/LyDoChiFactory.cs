@@ -21,7 +21,8 @@ namespace CuahangNongduoc.DataLayer
 
         public DataTable LayLyDoChi(long id)
         {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM LY_DO_CHI WHERE ID = " + id);
+            SqlCommand cmd = new SqlCommand("SELECT * FROM LY_DO_CHI WHERE ID = @id");
+            cmd.Parameters.Add("@id", SqlDbType.BigInt).Value = id;
             m_Ds.Load(cmd);
 
             return m_Ds;

@@ -1,32 +1,15 @@
-﻿using CuahangNongduoc.DataLayer;
+﻿using CuahangNongduoc.Security;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CuahangNongduoc
 {
-    // Thong tin nguoi dung dang dang nhap, dung o bat ky form nao: PhienDangNhap.HoTen ...
-    public static class PhienDangNhap
-    {
-        public static int Id;
-        public static string TenDangNhap = "";
-        public static string HoTen = "";
-        public static string Role = "";
-        public static bool LaAdmin
-        {
-            get { return Role.ToLower() == "admin"; }
-        }
-    }
-
+    // Thông tin người đang đăng nhập: dùng CuahangNongduoc.Security.PhienDangNhap (ở bất kỳ form nào),
+    // ví dụ PhienDangNhap.HoTen, PhienDangNhap.Hien.Id (ghi vào PHIEU_BAN.ID_NGUOI_DUNG).
     public partial class frmDangNhap : Form
     {
         private int m_SoLanSai = 0;
+        private readonly DangNhapService m_Service = new DangNhapService();
 
         public frmDangNhap()
         {
@@ -40,60 +23,42 @@ namespace CuahangNongduoc
 
         private void btnDangNhap_Click(object sender, EventArgs e)
         {
-            string ten = txtTen.Text.Trim();
-            string mk = txtMatKhau.Text;
+            KetQuaDangNhap kq = m_Service.DangNhap(txtTen.Text.Trim(), txtMatKhau.Text);
 
-            if (ten.Length == 0 || mk.Length == 0)
+            if (kq.ThanhCong)
             {
-                MessageBox.Show("Vui lòng nhập tên đăng nhập và mật khẩu.", "Đăng nhập",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                this.DialogResult = DialogResult.OK;
                 return;
             }
 
-            NguoiDungFactory factory = new NguoiDungFactory();
-            DataTable tbl = factory.LayNguoiDung(ten);
-
-            if (tbl.Rows.Count == 0 || !HopLe(tbl.Rows[0], mk))
+            // Thiếu thông tin / lỗi hệ thống: báo lỗi, KHÔNG tính vào số lần nhập sai.
+            if (kq.Loai != LoaiKetQua.SaiThongTin)
             {
-                m_SoLanSai++;
-                if (m_SoLanSai >= 5)
-                {
-                    MessageBox.Show("Sai quá 5 lần. Chương trình sẽ thoát.", "Đăng nhập",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    this.DialogResult = DialogResult.Cancel;
-                    return;
-                }
-                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu, hoặc tài khoản đã bị khóa.", "Đăng nhập",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                txtMatKhau.Clear();
-                txtMatKhau.Focus();
+                MessageBox.Show(kq.ThongBao, "Đăng nhập", MessageBoxButtons.OK,
+                    kq.Loai == LoaiKetQua.ThieuThongTin ? MessageBoxIcon.Warning : MessageBoxIcon.Error);
                 return;
             }
 
-            DataRow row = tbl.Rows[0];
-            PhienDangNhap.Id = Convert.ToInt32(row["ID"]);
-            PhienDangNhap.TenDangNhap = Convert.ToString(row["TEN_DANG_NHAP"]);
-            PhienDangNhap.HoTen = Convert.ToString(row["HOTEN"]);
-            PhienDangNhap.Role = Convert.ToString(row["ROLE"]);
+            m_SoLanSai++;
+            bool quaSoLan = m_SoLanSai >= DangNhapService.SO_LAN_SAI_TOI_DA;
 
-            this.DialogResult = DialogResult.OK;
-        }
+            // [RF-32 Consolidate Duplicate Conditional Fragments]
+            // Trước: if (m_SoLanSai >= 5) { MessageBox.Show("Sai quá 5 lần...", "Đăng nhập", OK, Error); DialogResult = Cancel; return; }
+            //        else                 { MessageBox.Show("Sai tên đăng nhập...", "Đăng nhập", OK, Error); txtMatKhau.Clear(); txtMatKhau.Focus(); }
+            //        (lệnh MessageBox.Show giống hệt nhau ở cả 2 nhánh, chỉ khác nội dung)
+            // Sau: nhánh chỉ chọn nội dung; MessageBox.Show nằm ngoài if, viết 1 lần.
+            string thongBao = quaSoLan
+                ? string.Format("Sai quá {0} lần. Chương trình sẽ thoát.", DangNhapService.SO_LAN_SAI_TOI_DA)
+                : kq.ThongBao;
+            MessageBox.Show(thongBao, "Đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-        // Kiem tra tai khoan dang hoat dong va mat khau dung
-        private bool HopLe(DataRow row, string matKhauNhap)
-        {
-            if (row["IS_ACTIVE"] != DBNull.Value && !Convert.ToBoolean(row["IS_ACTIVE"]))
-                return false;
-
-            string luu = Convert.ToString(row["MATKHAU"]);
-            string salt = row["SALT"] == DBNull.Value ? "" : Convert.ToString(row["SALT"]);
-
-            // Hien tai mat khau luu dang van ban thuong (SALT = NULL) nhu trong script.
-            if (salt.Length == 0)
-                return luu == matKhauNhap;
-
-            // Neu sau nay ban ma hoa mat khau (co SALT), them cach so sanh o day.
-            return false;
+            if (quaSoLan)
+            {
+                this.DialogResult = DialogResult.Cancel;
+                return;
+            }
+            txtMatKhau.Clear();
+            txtMatKhau.Focus();
         }
     }
 }
