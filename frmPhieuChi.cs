@@ -13,6 +13,8 @@ namespace CuahangNongduoc
     {
         LyDoChiController ctrlLyDo = new LyDoChiController();
         PhieuChiController ctrl = new PhieuChiController();
+        FormEditState status = FormEditState.Normal;
+
         public frmPhieuChi()
         {
             InitializeComponent();
@@ -25,17 +27,41 @@ namespace CuahangNongduoc
             ctrl.HienthiPhieuChi(bindingNavigator, dataGridView, cmbLyDoChi, txtMaPhieu, dtNgayChi, numTongTien, txtGhiChu);
         }
 
+        private void XoaLienKetDieuKhien()
+        {
+            txtMaPhieu.DataBindings.Clear();
+            cmbLyDoChi.DataBindings.Clear();
+            dtNgayChi.DataBindings.Clear();
+            numTongTien.DataBindings.Clear();
+            txtGhiChu.DataBindings.Clear();
+        }
+
+        private void ThoatCheDoThemMoi()
+        {
+            status = FormEditState.Normal;
+            txtMaPhieu.ReadOnly = false;
+            dataGridView.Enabled = true;
+            BindingSource bs = bindingNavigator.BindingSource;
+            if (bs != null)
+            {
+                ctrl.GanLaiDieuKhien(bs, bindingNavigator, dataGridView, cmbLyDoChi, txtMaPhieu, dtNgayChi, numTongTien, txtGhiChu);
+            }
+        }
+
         private void toolAdd_Click(object sender, EventArgs e)
         {
-            long maphieu = ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuChi);
-            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuChi, maphieu+1);
-
-            DataRow row = ctrl.NewRow();
-            row["ID"] = maphieu;
-            row["NGAY_CHI"] = dtNgayChi.Value.Date;
-            row["TONG_TIEN"] = numTongTien.Value;
-            ctrl.Add(row);
-            bindingNavigator.BindingSource.MoveLast();
+            status = FormEditState.AddNew;
+            XoaLienKetDieuKhien();
+            txtMaPhieu.Text = ThamSo.PhieuChi.ToString();
+            txtMaPhieu.ReadOnly = true;
+            dtNgayChi.Value = DateTime.Now.Date;
+            numTongTien.Value = 0;
+            txtGhiChu.Text = "";
+            if (cmbLyDoChi.Items.Count > 0 && cmbLyDoChi.SelectedIndex < 0)
+            {
+                cmbLyDoChi.SelectedIndex = 0;
+            }
+            dataGridView.Enabled = false;
         }
 
         private void dataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
@@ -48,6 +74,14 @@ namespace CuahangNongduoc
 
         private void toolDelete_Click(object sender, EventArgs e)
         {
+            if (status == FormEditState.AddNew)
+            {
+                ThoatCheDoThemMoi();
+                return;
+            }
+
+            if (bindingNavigator.BindingSource.Current == null) return;
+
             if (MessageBox.Show("Bạn chắc chắn xóa phiếu chi này không?", "Phieu Chi", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 bindingNavigator.BindingSource.RemoveCurrent();
@@ -58,7 +92,35 @@ namespace CuahangNongduoc
         private void toolSave_Click(object sender, EventArgs e)
         {
             txtMaPhieu.Focus();
-            bindingNavigator.BindingSource.MoveNext();
+
+            if (status == FormEditState.AddNew)
+            {
+                // Factory Method + Template Method: kiểm tra, tạo phiếu, lưu, rồi mới tăng bộ đếm
+                PhieuCreator creator = new PhieuChiCreator(ctrl);
+                XuLyPhieuChi xuLy = (XuLyPhieuChi)creator.TaoXuLy();
+                xuLy.NgayChi = dtNgayChi.Value.Date;
+                xuLy.TongTien = numTongTien.Value;
+                xuLy.IdLyDoChi = cmbLyDoChi.SelectedValue;
+                xuLy.GhiChu = txtGhiChu.Text;
+
+                if (!xuLy.Thuchien())
+                {
+                    MessageBox.Show(xuLy.ThongBaoLoi, "Phieu Chi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                ThoatCheDoThemMoi();
+                if (bindingNavigator.BindingSource != null)
+                {
+                    bindingNavigator.BindingSource.MoveLast();
+                }
+                return;
+            }
+
+            if (bindingNavigator.BindingSource != null)
+            {
+                bindingNavigator.BindingSource.EndEdit();
+            }
             ctrl.Save();
         }
 
@@ -69,12 +131,19 @@ namespace CuahangNongduoc
 
         private void toolIn_Click(object sender, EventArgs e)
         {
+            if (status == FormEditState.AddNew)
+            {
+                MessageBox.Show("Vui lòng lưu lại Phiếu chi hiện tại!", "Phieu Chi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             DataRowView row = (DataRowView)bindingNavigator.BindingSource.Current;
             if (row != null)
             {
                 PhieuChiController ctrlChi = new PhieuChiController();
                 String ma_phieu = row["ID"].ToString();
                 CuahangNongduoc.BusinessObject.PhieuChi ph = ctrlChi.LayPhieuChi(ma_phieu);
+                if (ph == null) return;
                 frmInPhieuChi InPhieu = new frmInPhieuChi(ph);
                 InPhieu.Show();
             }
@@ -95,10 +164,13 @@ namespace CuahangNongduoc
             p.Y += toolTimKiem.Height;
             Tim.Location = p;
             Tim.ShowDialog();
-            if (Tim.DialogResult == DialogResult.OK)
+            if (Tim.DialogResult == DialogResult.OK && Tim.cmbLyDo.SelectedValue != null)
             {
-                ctrl.TimPhieuChi(bindingNavigator, dataGridView, cmbLyDoChi, txtMaPhieu, dtNgayChi, numTongTien, txtGhiChu, Convert.ToInt32(Tim.cmbLyDo.SelectedValue), dtNgayChi.Value.Date);
-                
+                status = FormEditState.Normal;
+                txtMaPhieu.ReadOnly = false;
+                dataGridView.Enabled = true;
+                ctrl.TimPhieuChi(bindingNavigator, dataGridView, cmbLyDoChi, txtMaPhieu, dtNgayChi, numTongTien, txtGhiChu,
+                    Convert.ToInt32(Tim.cmbLyDo.SelectedValue), Tim.dtNgayChi.Value.Date);
             }
         }
     }

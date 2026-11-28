@@ -11,14 +11,18 @@ namespace CuahangNongduoc
         //  - SQL Server Express: .\SQLEXPRESS"
         //  - SQL Server mac dinh : "." hoac "localhost"
         //  - Dung tai khoan SQL : "Server=...;Database=...;User Id=sa;Password=...;"
-        // RF-02 #23 - Truoc: public static String m_ConnectString (field public).
-        private static String m_ConnectString =
-    @"Server=Eani;Database=CuahangNongduoc;Integrated Security=True;TrustServerCertificate=True;";
+        // Singleton: chuoi ket noi nam o DatabaseManager (Patterns/DatabaseManager.cs).
+        // Giu lai ca m_ConnectString va ChuoiKetNoi de cac cho goi cu va moi deu dung duoc.
+        public static String m_ConnectString
+        {
+            get { return DatabaseManager.Instance.ChuoiKetNoi; }
+            set { DatabaseManager.Instance.DatChuoiKetNoi(value); }
+        }
 
         public static String ChuoiKetNoi
         {
-            get { return m_ConnectString; }
-            set { m_ConnectString = value; }
+            get { return DatabaseManager.Instance.ChuoiKetNoi; }
+            set { DatabaseManager.Instance.DatChuoiKetNoi(value); }
         }
 
         private static SqlConnection m_Connection;
@@ -54,6 +58,7 @@ namespace CuahangNongduoc
             }
             catch (Exception e)
             {
+                AppLogger.Instance.Loi("DataService.Load", e);
                 MessageBox.Show("Loi doc du lieu: " + e.Message, "SQL Server",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -64,7 +69,7 @@ namespace CuahangNongduoc
             try
             {
                 if (m_Connection == null)
-                    m_Connection = new SqlConnection(m_ConnectString);
+                    m_Connection = new SqlConnection(DatabaseManager.Instance.ChuoiKetNoi);
 
                 if (m_Connection.State == ConnectionState.Closed)
                     m_Connection.Open();
@@ -72,8 +77,9 @@ namespace CuahangNongduoc
             }
             catch (Exception e)
             {
+                AppLogger.Instance.Loi("DataService.OpenConnection", e);
                 MessageBox.Show("Khong ket noi duoc SQL Server:\n" + e.Message +
-                    "\n\nKiem tra lai chuoi ket noi trong DataService.cs",
+                    "\n\nKiem tra lai chuoi ket noi trong DatabaseManager.cs",
                     "SQL Server", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (m_Connection != null) m_Connection.Close();
                 return false;
@@ -112,6 +118,7 @@ namespace CuahangNongduoc
             catch (Exception e)
             {
                 if (tr != null) tr.Rollback();
+                AppLogger.Instance.Loi("DataService.ExecuteNoneQuery", e);
                 MessageBox.Show("Loi luu du lieu: " + e.Message, "SQL Server",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -137,9 +144,10 @@ namespace CuahangNongduoc
                 this.AcceptChanges();
                 tr.Commit();
             }
-            catch
+            catch (Exception ex)
             {
                 if (tr != null) tr.Rollback();
+                AppLogger.Instance.Loi("DataService (giao dich)", ex);
                 throw;
             }
             return result;
@@ -164,9 +172,10 @@ namespace CuahangNongduoc
                 if (result == DBNull.Value)
                     result = null;
             }
-            catch
+            catch (Exception ex)
             {
                 if (tr != null) tr.Rollback();
+                AppLogger.Instance.Loi("DataService (giao dich)", ex);
                 throw;
             }
             return result;

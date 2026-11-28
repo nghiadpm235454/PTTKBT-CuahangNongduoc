@@ -45,15 +45,6 @@ namespace CuahangNongduoc.DataLayer
             return m_Ds;
         }
 
-
-        public DataTable LayChiTietPhieuBan(String idPhieuBan)
-        {
-            SqlCommand cmd = new SqlCommand("SELECT * FROM CHI_TIET_PHIEU_BAN WHERE ID_PHIEU_BAN = @id");
-            cmd.Parameters.Add("@id", SqlDbType.NVarChar, 50).Value = idPhieuBan;
-            m_Ds.Load(cmd);
-            return m_Ds;
-        }
-
         public static long LayConNo(String kh, int thang, int nam)
         {
             DataService ds = new DataService();

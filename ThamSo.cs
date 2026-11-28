@@ -5,25 +5,28 @@ using BO = CuahangNongduoc.BusinessObject;
 
 namespace CuahangNongduoc
 {
-    public enum Controll
+    // [R21 Rename Type] Trước: enum Controll { Normal, AddNew, Edit }
+    // Sau: FormEditState = trạng thái chỉnh sửa của form (Normal/AddNew/Edit).
+    public enum FormEditState
     {
         Normal,
         AddNew,
         Edit
     }
 
-    // FIX-03 (R07) - Truoc: ThamSo co 7 cap Lay/Gan lap lai (LayMaPhieuNhap/GanMaPhieuNhap,
-    // LayMaPhieuBan/GanMaPhieuBan, LayMaPhieuThanhToan/GanMaPhieuThanhToan, va cac property
-    // SanPham, NhaCungCap, KhachHang, PhieuChi).
-    // Sau: tat ca chuyen vao ThamSoManager.GetThamSo(KhoaThamSo.x) / SetThamSo(KhoaThamSo.x, gia_tri).
-    // RF-02 #21/#20: PreMonth(ref, ref, ...) chuyen thanh BusinessObject.KyThang.ThangTruoc().
     public class ThamSo
     {
-        // RF-02 #22: ma ky thuat thay cho chuoi "so ma thuat" lap lai
         private const string XUAT_KHO_FIFO = "FIFO";
         private const string XUAT_KHO_CHI_DINH = "CHI_DINH";
         private const string GIA_XUAT_FIFO = "FIFO";
         private const string GIA_XUAT_BQGQ = "BQGQ";
+
+        public static void PreMonth(ref int thangtruoc, ref int namtruoc, int thang, int nam)
+        {
+            DateTime ngayTruoc = new DateTime(nam, thang, 1).AddMonths(-1);
+            thangtruoc = ngayTruoc.Month;
+            namtruoc = ngayTruoc.Year;
+        }
 
         public static bool LaSoNguyen(String so)
         {
@@ -36,6 +39,57 @@ namespace CuahangNongduoc
             {
                 return false;
             }
+        }
+
+        public static long LayMaPhieuNhap()
+        {
+            return ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuNhap);
+        }
+        public static void GanMaPhieuNhap(long id)
+        {
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuNhap, id);
+        }
+
+        public static long LayMaPhieuBan()
+        {
+            return ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuBan);
+        }
+        public static void GanMaPhieuBan(long id)
+        {
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuBan, id);
+        }
+
+        public static long LayMaPhieuThanhToan()
+        {
+            return ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuThanhToan);
+        }
+        public static void GanMaPhieuThanhToan(long id)
+        {
+            ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuThanhToan, id);
+        }
+
+        public static long SanPham
+        {
+            get { return ThamSoManager.Instance.GetThamSo(KhoaThamSo.SanPham); }
+            set { ThamSoManager.Instance.SetThamSo(KhoaThamSo.SanPham, value); }
+        }
+
+        public static long NhaCungCap
+        {
+            get { return ThamSoManager.Instance.GetThamSo(KhoaThamSo.NhaCungCap); }
+            set { ThamSoManager.Instance.SetThamSo(KhoaThamSo.NhaCungCap, value); }
+        }
+
+        public static long KhachHang
+        {
+            get { return ThamSoManager.Instance.GetThamSo(KhoaThamSo.KhachHang); }
+            set { ThamSoManager.Instance.SetThamSo(KhoaThamSo.KhachHang, value); }
+        }
+
+        public static long PhieuChi
+        {
+            get { return ThamSoManager.Instance.GetThamSo(KhoaThamSo.PhieuChi); }
+            set { ThamSoManager.Instance.SetThamSo(KhoaThamSo.PhieuChi, value); }
         }
 
         public static BO.CuaHang LayCuaHang()

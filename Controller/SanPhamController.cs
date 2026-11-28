@@ -69,25 +69,24 @@ namespace CuahangNongduoc.Controller
 
             
         }
-        public void CapNhatGiaNhap(String id, long gia_moi ,long so_luong)
+        public void CapNhatGiaNhap(String id, long giaMoi, long soLuongNhap)
         {
             DataTable tbl = factory.LaySanPham(id);
             if (tbl.Rows.Count > 0)
             {
-                long tong_so = Convert.ToInt32(tbl.Rows[0]["SO_LUONG"]);
-                long tong_gia = Convert.ToInt64(tbl.Rows[0]["DON_GIA_NHAP"]);
-                if (tong_gia != gia_moi)
+                long soLuongCu = tbl.Rows[0]["SO_LUONG"] == DBNull.Value ? 0 : Convert.ToInt32(tbl.Rows[0]["SO_LUONG"]);
+                long giaCu = tbl.Rows[0]["DON_GIA_NHAP"] == DBNull.Value ? 0 : Convert.ToInt64(tbl.Rows[0]["DON_GIA_NHAP"]);
+                long soLuongMoi = soLuongCu + soLuongNhap;
+                if (giaCu != giaMoi && soLuongMoi > 0)
                 {
-                    long thanh_tien = gia_moi * so_luong + tong_gia * tong_so;
-                    tong_so += so_luong;
-                    tbl.Rows[0]["DON_GIA_NHAP"] = thanh_tien / tong_so;
-                    tbl.Rows[0]["SO_LUONG"] = tong_so;
+                    long thanhTien = giaMoi * soLuongNhap + giaCu * soLuongCu;
+                    tbl.Rows[0]["DON_GIA_NHAP"] = thanhTien / soLuongMoi;
                 }
+                tbl.Rows[0]["SO_LUONG"] = soLuongMoi;
                 factory.Save();
             }
-
         }
-    
+
         public SanPham LaySanPham(String id)
         {
             DataTable tbl = factory.LaySanPham(id);
