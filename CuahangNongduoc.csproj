@@ -11,7 +11,7 @@
     <RootNamespace>CuahangNongduoc</RootNamespace>
     <AssemblyName>CuahangNongduoc</AssemblyName>
     <ApplicationIcon>CuahangNongduoc.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -32,7 +32,6 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +42,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,7 +50,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.ReportViewer.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -79,6 +76,9 @@
     <Compile Include="BusinessObject\KhachHang.cs" />
     <Compile Include="BusinessObject\MaSanPham.cs" />
     <Compile Include="BusinessObject\PhieuBan.cs" />
+    <Compile Include="BusinessObject\LoaiGiamGia.cs" />
+    <Compile Include="BusinessObject\ThongTinGiamGia.cs" />
+    <Compile Include="BusinessObject\DichVuPhieuBan.cs" />
     <Compile Include="BusinessObject\PhieuNhap.cs" />
     <Compile Include="BusinessObject\SanPham.cs" />
     <Compile Include="BusinessObject\SoLuongTon.cs" />
@@ -92,14 +92,11 @@
     <Compile Include="Controller\KhachHangController.cs" />
     <Compile Include="Controller\MaSanPhamController.cs" />
     <Compile Include="Controller\PhieuBanController.cs" />
+    <Compile Include="Controller\DichVuPhieuBanController.cs" />
+    <Compile Include="Controller\SaveResult.cs" />
     <Compile Include="Controller\SanPhamController.cs" />
     <Compile Include="Controller\DonViTinhController.cs" />
-    <Compile Include="DataLayer\NguoiDungFactory.cs" />
     <Compile Include="DataLayer\PhieuChiFactory.cs" />
-    <Compile Include="frmDangNhap.cs" />
-    <Compile Include="frmDangNhap.Designer.cs">
-      <DependentUpon>frmDangNhap.cs</DependentUpon>
-    </Compile>
     <Compile Include="frmInPhieuChi.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -444,13 +441,11 @@
     <EmbeddedResource Include="Report\rptSoLuongBan.rdlc" />
     <EmbeddedResource Include="Report\rptSoLuongTon.rdlc" />
     <EmbeddedResource Include="Report\rptThanhToan.rdlc" />
-    <EmbeddedResource Include="Report\rptThongKe.rdlc" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -462,45 +457,14 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="ThamSo.cs" />
-    <Compile Include="ThamSoManager.cs" />
-    <Compile Include="BusinessObject\KyThang.cs" />
-    <Compile Include="Strategy\IGiaXuatStrategy.cs" />
-    <Compile Include="Strategy\GiaXuatBQGQ.cs" />
-    <Compile Include="Strategy\GiaXuatFIFO.cs" />
-    <Compile Include="Strategy\KhoStrategyFactory.cs" />
-    <Compile Include="BusinessObject\HanSuDung.cs" />
-    <Compile Include="BusinessObject\LoIterator.cs" />
-    <Compile Include="BusinessObject\ThoiGian.cs" />
-    <Compile Include="BusinessObject\TonKhoObserver.cs" />
-    <Compile Include="BusinessObject\XuatKhoModels.cs" />
-    <Compile Include="Controller\XuatKhoController.cs" />
-    <Compile Include="Controller\XuatKhoService.cs" />
-    <Compile Include="DataLayer\LoHangDao.cs" />
-    <Compile Include="Test\XuatKhoServiceTest.cs" />
-    <Compile Include="CauHinhKho.cs" />
-    <Compile Include="GridErrorHelper.cs" />
-    <Compile Include="NhapHangMediator.cs" />
-    <Compile Include="PhieuNhapMemento.cs" />
-    <Compile Include="BaoCao\BasePhieuInForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BaoCao\BaseReportForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BaoCao\IReportOutput.cs" />
-    <Compile Include="BaoCao\LoaiThongKe.cs" />
-    <Compile Include="BaoCao\ThongKeReportBuilder.cs" />
-    <Compile Include="BusinessObject\ThongKeRow.cs" />
-    <Compile Include="DataLayer\BaoCaoFactory.cs" />
-    <Compile Include="frmBaoCaoNhanVien.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmBaoCaoThongKe.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmMain.BaoCao.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="DataLayer\DichVuPhieuBanFactory.cs" />
+    <Compile Include="Patterns\BieuThucGiamGia.cs" />
+    <Compile Include="Patterns\GiamGia.cs" />
+    <Compile Include="Patterns\HoaDonComposite.cs" />
+    <Compile Include="Patterns\HoaDonDecorator.cs" />
+    <Compile Include="Patterns\HoaDonSelfTest.cs" />
+    <Compile Include="Patterns\PhiVanChuyen.cs" />
+    <Compile Include="Patterns\TinhHoaDonService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\save.png" />
